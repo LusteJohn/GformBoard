@@ -3,6 +3,7 @@ import { FORMS, STATUSES, NAME_POOL } from './data'
 
 export const state = reactive({
   screen: 'login', // login | forms | form
+  user: null,
   formId: null, tab: 'board',
   search: '', typeFilter: 'All',
   openId: null, customizing: false, toast: '',
