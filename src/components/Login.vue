@@ -14,6 +14,7 @@ async function submit() {
   const res = await signIn(email.value.trim(), password.value)
   busy.value = false
   if (res.success) {
+    state.user = res
     state.screen = 'forms'
   } else {
     error.value = res.message
@@ -26,6 +27,7 @@ async function google() {
   const res = await signInWithGoogle()
   busy.value = false
   if (res.success) {
+    state.user = res
     state.screen = 'forms'
   } else {
     error.value = res.message

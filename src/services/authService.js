@@ -1,7 +1,8 @@
 
 import {
   signInWithPopup,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  signOut
 } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 
@@ -74,6 +75,19 @@ export const signIn = async (email, password) => {
     return {
       success: false,
       message
+    };
+  }
+};
+
+export const signOutUser = async () => {
+  try {
+    await signOut(auth);
+    return { success: true };
+  } catch (error) {
+    console.error("Sign-Out Error:", error);
+    return {
+      success: false,
+      message: error.message
     };
   }
 };
