@@ -12,7 +12,7 @@ const pending = f => f.responses.filter(r => r.status === 'To review').length
     <h1>My forms</h1>
     <div class="mu">Loaded from your Google Drive. Pick one to open its responses.</div>
     <div class="bar">
-      <input v-model="state.search" placeholder="Search forms" />
+      <input id="form-search" v-model="state.search" placeholder="Search forms ( / )" />
       <button v-for="t in types" :key="t" class="chip" :class="{ on: state.typeFilter === t }" @click="state.typeFilter = t">{{ t }}</button>
     </div>
     <div class="grid">
