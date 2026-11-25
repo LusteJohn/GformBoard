@@ -1,7 +1,11 @@
 
 import {
   signInWithPopup,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  signOut,
+  setPersistence,
+  browserSessionPersistence,
+  onAuthStateChanged
 } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 
@@ -77,3 +81,22 @@ export const signIn = async (email, password) => {
     };
   }
 };
+
+export const signOutUser = async () => {
+  try {
+    await signOut(auth);
+    return { success: true };
+  } catch (error) {
+    console.error("Sign-Out Error:", error);
+    return {
+      success: false,
+      message: error.message
+    };
+  }
+};
+
+setPersistence(auth, browserSessionPersistence).catch((error) => {
+  console.error("Persistence Error:", error);
+});
+
+export const onAuthChange = (callback) => onAuthStateChanged(auth, callback);
