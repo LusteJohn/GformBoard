@@ -1,7 +1,8 @@
-import { reactive, computed } from 'vue'
+import { reactive, computed, watch } from 'vue'
 import { STATUSES } from './data'
 import { getToken, clearToken } from './services/authService'
 import { loadMyForms, addGoogleForm, getDriveForms } from './services/forms'
+import { newResponseId } from './utils'
 
 export const state = reactive({
   screen: 'login', // login | forms | form
@@ -24,6 +25,67 @@ export const state = reactive({
 export const form = computed(() => state.forms[state.formId])
 export const label = (f, key) => f.fields.find(x => x[0] === key)?.[1] ?? key
 export const statusClass = s => 's' + STATUSES.indexOf(s)
+
+// ---- local persistence (prototype) ----
+// The live data always comes from Google/Firestore, but the teacher's layout
+// choices and review deltas (status/notes/score) are mirrored to localStorage so
+// a refresh feels real instead of resetting everything.
+const LS_KEY = 'formboard_local_v1'
+
+function readLocal() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {} }
+  catch { return {} }
+}
+function writeLocal(data) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(data)) }
+  catch { /* storage full / unavailable */ }
+}
+
+/** Extracts only the mutable deltas (layout + per-response review fields). */
+function extractPersistable() {
+  const layouts = {}, reviews = {}
+  for (const [id, f] of Object.entries(state.forms)) {
+    if (f.layout) layouts[id] = f.layout
+    const rv = {}
+    for (const r of f.responses) {
+      const d = {}
+      if (r.status) d.status = r.status
+      if (r.notes) d.notes = r.notes
+      if (r.answers && r.answers.score !== undefined && r.answers.score !== '') d.score = r.answers.score
+      if (Object.keys(d).length) rv[r.id] = d
+    }
+    if (Object.keys(rv).length) reviews[id] = rv
+  }
+  return { layouts, reviews }
+}
+
+/** Overlays locally-persisted layout/review deltas onto freshly loaded forms. */
+function applyLocal(forms) {
+  const { layouts = {}, reviews = {} } = readLocal()
+  for (const [id, f] of Object.entries(forms)) {
+    if (layouts[id] && f.layout) f.layout = { ...f.layout, ...layouts[id] }
+    const rv = reviews[id]
+    if (rv) {
+      for (const r of f.responses) {
+        const d = rv[r.id]
+        if (!d) continue
+        if (d.status) r.status = d.status
+        if (d.notes != null) r.notes = d.notes
+        if (d.score != null && r.answers) r.answers.score = d.score
+      }
+    }
+  }
+  return forms
+}
+
+let persistTimer
+function schedulePersist() {
+  clearTimeout(persistTimer)
+  persistTimer = setTimeout(() => writeLocal(extractPersistable()), 250)
+}
+
+// Any deep change to the loaded forms (layout edits, status/notes/score) is persisted.
+watch(() => state.forms, schedulePersist, { deep: true })
 
 // A non-status field usable for the section/grade/mood filter
 export const groupField = computed(() => {
@@ -113,7 +175,7 @@ export async function refreshForms() {
   if (!token) { state.forms = {}; return }
   state.loadingForms = true
   try {
-    state.forms = await loadMyForms(state.user, token)
+    state.forms = applyLocal(await loadMyForms(state.user, token))
   } catch (e) {
     console.error('Failed to load forms:', e)
     if (isExpiredToken(e)) { clearToken(); notify('Session expired. Please sign in with Google again.') }
@@ -167,7 +229,7 @@ export async function addForm(picked) {
   if (!token) return
   try {
     const result = await addGoogleForm(state.user, token, picked)
-    state.forms[result.form.id] = result.form
+    state.forms[result.form.id] = applyLocal({ [result.form.id]: result.form })[result.form.id]
     const item = state.driveForms.find(f => f.id === picked.id)
     if (item) item.added = true
     notify(result.existed ? `“${result.form.name}” was already added` : `Added “${result.form.name}”`)
@@ -186,6 +248,26 @@ export async function addForm(picked) {
       notify('Could not add the form: ' + m)
     }
   }
+}
+
+/**
+ * Adds or updates a response in the current form. Ids come from the caller or a
+ * collision-safe generator (never `responses.length`), so removing a response
+ * can't cause a later id to clash with an existing one.
+ */
+export function syncResponse(data = {}) {
+  const f = form.value
+  if (!f) return null
+  const r = {
+    id: data.id || newResponseId(),
+    answers: data.answers || {},
+    status: data.status || 'To review',
+    notes: data.notes || '',
+  }
+  const idx = f.responses.findIndex(x => x.id === r.id)
+  if (idx >= 0) f.responses.splice(idx, 1, { ...f.responses[idx], ...r })
+  else f.responses.push(r)
+  return r
 }
 
 export function moveResponse(id, status) {
