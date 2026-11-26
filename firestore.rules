@@ -1,0 +1,27 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    match /forms/{formId} {
+      allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
+      // resource == null lets the app check "does this form exist yet?" before creating it
+      allow read: if signedIn() && (resource == null
+        || resource.data.ownerId == request.auth.uid
+        || request.auth.uid in resource.data.get('reviewerIds', []));
+      allow update: if signedIn() && resource.data.ownerId == request.auth.uid
+        && request.resource.data.ownerId == resource.data.ownerId;
+      allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+
+      match /reviews/{responseId} {
+        function parent() { return get(/databases/$(database)/documents/forms/$(formId)).data; }
+        allow read, write: if signedIn() && (parent().ownerId == request.auth.uid
+          || request.auth.uid in parent().get('reviewerIds', []));
+      }
+    }
+  }
+}
