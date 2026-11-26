@@ -9,6 +9,7 @@ import CustomizePanel from './components/CustomizePanel.vue'
 import DetailPanel from './components/DetailPanel.vue'
 import ActivityPanel from './components/ActivityPanel.vue'
 import AddFormPanel from './components/AddFormPanel.vue'
+import AppIcon from './components/AppIcon.vue'
 
 const initials = computed(() => {
   const n = state.user?.name || state.user?.email || '?'
@@ -91,22 +92,19 @@ async function signOut() {
     <header class="top">
       <span class="logo">FormBoard</span><span class="sp"></span>
       <template v-if="state.screen === 'form'">
-        <button class="btn" @click="state.customizing = true">Customize</button>
+        <button class="btn" @click="state.customizing = true"><AppIcon name="sliders" :size="16" /> Customize</button>
       </template>
       <span class="mu small">{{ state.user?.email }}</span>
       <div class="av">{{ initials }}</div>
 
       <div class="settings" ref="settingsEl">
         <button class="btn icon" :aria-expanded="settingsOpen" aria-label="Settings" @click.stop="toggleSettings">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="3" />
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-          </svg>
+          <AppIcon name="settings" :size="18" />
         </button>
 
         <div v-if="settingsOpen" class="menu">
           <button class="menu-item" @click="openActivity">
-            <span>Activity</span>
+            <span class="mi-label"><AppIcon name="activity" :size="16" /> Activity</span>
             <span v-if="state.activity.length" class="cnt">{{ state.activity.length }}</span>
           </button>
           <div class="menu-block">
@@ -118,7 +116,7 @@ async function signOut() {
             </select>
           </div>
           <div class="menu-sep"></div>
-          <button class="menu-item danger" @click="signOut">Sign out</button>
+          <button class="menu-item danger" @click="signOut"><span class="mi-label"><AppIcon name="logout" :size="16" /> Sign out</span></button>
         </div>
       </div>
     </header>

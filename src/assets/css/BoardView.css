@@ -2,8 +2,9 @@
 .card-top{display:flex;align-items:center;gap:8px}
 .card-top b{flex:1}
 .sel{cursor:pointer;flex:none}
-.badge{font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px}
 .badge.note{background:var(--acs);color:var(--ac)}
 .badge.score{background:var(--c2);color:var(--t2)}
 .empty{text-align:center;padding:40px 0}
 .empty .btn{margin-top:8px}
+.board.locked .card{cursor:default}

@@ -9,8 +9,9 @@ import { STATUSES } from '../data'
 import BoardView from './BoardView.vue'
 import TableView from './TableView.vue'
 import InsightsView from './InsightsView.vue'
+import AppIcon from './AppIcon.vue'
 
-const tabs = [['board', 'Board'], ['table', 'Table'], ['insights', 'Insights']]
+const tabs = [['board', 'Board', 'board'], ['table', 'Table', 'table'], ['insights', 'Insights', 'chart']]
 
 const rs = computed(() => form.value.responses)
 const total = computed(() => rs.value.length)
@@ -57,7 +58,7 @@ function applyScore() {
     </div>
 
     <div class="tabs">
-      <button v-for="[k, l] in tabs" :key="k" class="tab" :class="{ on: state.tab === k }" @click="state.tab = k">{{ l }}</button>
+      <button v-for="[k, l, ic] in tabs" :key="k" class="tab" :class="{ on: state.tab === k }" @click="state.tab = k"><AppIcon :name="ic" :size="16" /> {{ l }}</button>
     </div>
 
     <div v-if="selCount" class="bulkbar">
@@ -70,7 +71,7 @@ function applyScore() {
         <input v-model="bulkScoreVal" type="number" placeholder="Score" />
         <button class="btn" @click="applyScore">Assign score</button>
       </template>
-      <button class="btn" @click="exportResponses">Export</button>
+      <button class="btn" @click="exportResponses"><AppIcon name="download" :size="16" /> Export</button>
       <button class="btn" @click="clearSelection">Clear</button>
     </div>
 

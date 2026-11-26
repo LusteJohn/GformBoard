@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { state, refreshForms } from '../store'
 import { signIn, signInWithGoogle } from '../services/authService'
+import AppIcon from './AppIcon.vue'
 
 const email = ref('')
 const password = ref('')
@@ -61,11 +62,11 @@ async function google() {
 
       <form class="stack" @submit.prevent="submit">
         <label class="field">
-          <span>Email</span>
+          <span><AppIcon name="mail" :size="14" /> Email</span>
           <input v-model="email" type="email" placeholder="you@example.com" autocomplete="email" required />
         </label>
         <label class="field">
-          <span>Password</span>
+          <span><AppIcon name="lock" :size="14" /> Password</span>
           <input v-model="password" type="password" placeholder="••••••••" autocomplete="current-password" required />
         </label>
         <button class="btn pri submit" type="submit" :disabled="busy">

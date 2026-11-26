@@ -1,7 +1,9 @@
 <script setup>
 import { computed } from 'vue'
 import { state, openForm, openAddForm, refreshForms } from '../store'
-const types = ['All', 'Quiz', 'Survey', 'Exam']
+import AppIcon from './AppIcon.vue'
+// Derive chips from the actual form types so nothing (e.g. "Other") is hidden.
+const types = computed(() => ['All', ...Array.from(new Set(Object.values(state.forms).map(f => f.type))).sort()])
 const list = computed(() => Object.entries(state.forms).filter(([, f]) =>
   (state.typeFilter === 'All' || f.type === state.typeFilter) &&
   f.name.toLowerCase().includes(state.search.toLowerCase())))
@@ -16,9 +18,9 @@ const hasAny = computed(() => Object.keys(state.forms).length > 0)
         <div class="mu">Forms saved in your Google Drive. Pick one to open its responses.</div>
       </div>
       <div class="actions">
-        <button class="btn" :disabled="state.loadingForms" @click="refreshForms">Refresh</button>
+        <button class="btn" :disabled="state.loadingForms" @click="refreshForms"><AppIcon name="refresh" :size="16" /> Refresh</button>
         <button class="btn pri" :disabled="state.loadingForms" @click="openAddForm">
-          {{ state.loadingForms ? 'Loading…' : '+ Add Google Form' }}
+          <AppIcon name="plus" :size="16" /> {{ state.loadingForms ? 'Loading…' : 'Add Google Form' }}
         </button>
       </div>
     </div>
@@ -29,7 +31,7 @@ const hasAny = computed(() => Object.keys(state.forms).length > 0)
     <div class="grid">
       <button v-for="[id, f] in list" :key="id" class="fc" @click="openForm(id)">
         <span class="tag ty">{{ f.type }}</span>
-        <b>{{ f.name }}</b>
+        <span class="fc-head"><AppIcon name="form" :size="18" /> <b>{{ f.name }}</b></span>
         <span class="mu">{{ f.responses.length }} responses</span>
         <span v-if="f.modified" class="mu small">{{ f.modified }}</span>
         <span v-if="pending(f)" class="tag s0">{{ pending(f) }} to review</span>

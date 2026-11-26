@@ -8,5 +8,7 @@
 .modal-body .ans{padding:9px 0;border-bottom:1px solid var(--bd)}
 .modal-body .ans small{color:var(--mu);display:block}
 .modal-body label{display:block;font-weight:600;font-size:13px;margin:14px 0 5px}
+.modal-body label .ico{color:var(--mu);margin-right:5px}
+.hint{color:var(--mu);font-weight:400}
 .modal-body select,.modal-body input[type=number],.modal-body textarea{width:100%;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg)}
 .modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:14px 18px;border-top:1px solid var(--bd);background:var(--sf)}
