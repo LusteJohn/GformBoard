@@ -51,14 +51,4 @@ const hasScore = r => r.answers.score !== undefined && r.answers.score !== ''
   </div>
 </template>
 
-<style scoped>
-.card.on{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac)}
-.card-top{display:flex;align-items:center;gap:8px}
-.card-top b{flex:1}
-.sel{cursor:pointer;flex:none}
-.badge{font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px}
-.badge.note{background:var(--acs);color:var(--ac)}
-.badge.score{background:var(--c2);color:var(--t2)}
-.empty{text-align:center;padding:40px 0}
-.empty .btn{margin-top:8px}
-</style>
+<style scoped src="../assets/css/BoardView.css"></style>

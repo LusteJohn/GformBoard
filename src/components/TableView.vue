@@ -40,10 +40,4 @@ const hasScore = r => r.answers.score !== undefined && r.answers.score !== ''
   </div>
 </template>
 
-<style scoped>
-.cbox{width:34px;text-align:center}
-tr.sel{background:var(--acs)}
-.badge.score{background:var(--c2);color:var(--t2);font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;margin-left:6px}
-.empty{text-align:center;padding:40px 0}
-.empty .btn{margin-top:8px}
-</style>
+<style scoped src="../assets/css/TableView.css"></style>

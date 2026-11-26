@@ -1,0 +1,8 @@
+.chips{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.chip-stat{background:var(--sf);border:1px solid var(--bd);border-radius:99px;padding:4px 12px;font-size:13px;font-weight:600}
+.filters{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.filters input{flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--sf)}
+.filters select{padding:9px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--sf)}
+.bulkbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--acs);border:1px solid var(--bd);border-radius:10px;padding:10px 14px;margin-bottom:14px}
+.bulkbar select,.bulkbar input{padding:7px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--sf)}
+.bulkbar input{width:90px}
