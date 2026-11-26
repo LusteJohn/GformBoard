@@ -10,11 +10,27 @@ import {
 import { getFirebaseAuth, googleProvider } from "../firebase";
 import { ensureUser } from "./firestore";
 
-// Google OAuth access token for the current session. Needed by the Picker and
-// the Forms API (Firebase ID tokens cannot call Google APIs). It lives in memory
-// only and expires after ~1h, at which point the user signs in again.
-let googleAccessToken = null;
+// Google OAuth access token for the current session. Needed by the Drive and
+// Forms APIs (Firebase ID tokens cannot call Google APIs). Persisted in
+// sessionStorage so it survives a page refresh; expires after ~1h, at which
+// point the user signs in again.
+const TOKEN_KEY = "formboard_google_token";
+let googleAccessToken = readStoredToken();
+
+function readStoredToken() {
+  try { return sessionStorage.getItem(TOKEN_KEY) || null; }
+  catch { return null; }
+}
+function setToken(token) {
+  googleAccessToken = token || null;
+  try {
+    if (googleAccessToken) sessionStorage.setItem(TOKEN_KEY, googleAccessToken);
+    else sessionStorage.removeItem(TOKEN_KEY);
+  } catch { /* ignore storage errors */ }
+}
+
 export const getToken = () => googleAccessToken;
+export const clearToken = () => setToken(null);
 
 export const signInWithGoogle = async () => {
   try {
@@ -22,7 +38,7 @@ export const signInWithGoogle = async () => {
     const result = await signInWithPopup(auth, googleProvider);
 
     const credential = GoogleAuthProvider.credentialFromResult(result);
-    googleAccessToken = credential?.accessToken ?? null;
+    setToken(credential?.accessToken);
 
     const user = result.user;
     const profile = {
@@ -51,7 +67,7 @@ export const signIn = async (email, password) => {
     const user = result.user;
     // Email/password accounts have no Google token, so the Google form picker
     // is unavailable until they sign in with Google.
-    googleAccessToken = null;
+    setToken(null);
     return { success: true, uid: user.uid, name: user.displayName, email: user.email, photoURL: user.photoURL };
   } catch (error) {
     console.error("Sign-In Error:", error);
@@ -78,7 +94,7 @@ export const signIn = async (email, password) => {
 export const signOutUser = async () => {
   try {
     await signOut(getFirebaseAuth());
-    googleAccessToken = null;
+    setToken(null);
     return { success: true };
   } catch (error) {
     console.error("Sign-Out Error:", error);

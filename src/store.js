@@ -1,6 +1,6 @@
 import { reactive, computed } from 'vue'
 import { STATUSES } from './data'
-import { getToken } from './services/authService'
+import { getToken, clearToken } from './services/authService'
 import { loadMyForms, addGoogleForm, getDriveForms } from './services/forms'
 
 export const state = reactive({
@@ -104,6 +104,8 @@ export function openForm(id) {
 }
 
 // ---- Google Forms loading ----
+const isExpiredToken = e => /401|invalid_token|expired|invalid credentials/i.test(e?.message || '')
+
 /** Reads the signed-in user's saved forms live from Google into state.forms. */
 export async function refreshForms() {
   if (!state.user) return
@@ -114,7 +116,8 @@ export async function refreshForms() {
     state.forms = await loadMyForms(state.user, token)
   } catch (e) {
     console.error('Failed to load forms:', e)
-    notify('Could not load your forms. Please sign in with Google again.')
+    if (isExpiredToken(e)) { clearToken(); notify('Session expired. Please sign in with Google again.') }
+    else notify('Could not load your forms. Please sign in with Google again.')
   } finally {
     state.loadingForms = false
   }
@@ -135,7 +138,10 @@ export async function openAddForm() {
   } catch (e) {
     console.error('Failed to list Drive forms:', e)
     const m = e?.message || 'unknown error'
-    if (/not been used in project|has not been used|is disabled/i.test(m)) {
+    if (isExpiredToken(e)) {
+      clearToken()
+      notify('Session expired. Please sign in with Google again.')
+    } else if (/not been used in project|has not been used|is disabled/i.test(m)) {
       const pid = import.meta.env.VITE_FIREBASE_PROJECT_ID || 'your-project'
       notify('One-time setup: enable the Google Drive API at console.developers.google.com/apis/api/drive.googleapis.com/overview?project=' + pid)
     } else if (/insufficient authentication scopes|insufficientPermissions/i.test(m)) {
@@ -167,7 +173,18 @@ export async function addForm(picked) {
     notify(result.existed ? `“${result.form.name}” was already added` : `Added “${result.form.name}”`)
   } catch (e) {
     console.error('Failed to add form:', e)
-    notify('Could not add the form: ' + e.message)
+    const m = e?.message || 'unknown error'
+    if (isExpiredToken(e)) {
+      clearToken()
+      notify('Session expired. Please sign in with Google again.')
+    } else if (/not been used in project|has not been used|is disabled/i.test(m)) {
+      const pid = import.meta.env.VITE_FIREBASE_PROJECT_ID || 'your-project'
+      notify('One-time setup: enable the Google Forms API at console.developers.google.com/apis/api/forms.googleapis.com/overview?project=' + pid)
+    } else if (/insufficient authentication scopes|insufficientPermissions/i.test(m)) {
+      notify('Please sign out and sign in with Google again to grant Forms access.')
+    } else {
+      notify('Could not add the form: ' + m)
+    }
   }
 }
 
