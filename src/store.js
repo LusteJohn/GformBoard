@@ -20,11 +20,32 @@ export const state = reactive({
   toast: '', toastAction: null,
   activity: [],
   forms: {},
+  theme: 'system', // light | dark | system
 })
 
 export const form = computed(() => state.forms[state.formId])
 export const label = (f, key) => f.fields.find(x => x[0] === key)?.[1] ?? key
 export const statusClass = s => 's' + STATUSES.indexOf(s)
+
+// ---- appearance (light / dark / system) ----
+const THEME_KEY = 'formboard_theme'
+function applyTheme() {
+  const root = document.documentElement
+  if (state.theme === 'system') root.removeAttribute('data-theme')
+  else root.setAttribute('data-theme', state.theme)
+}
+export function initTheme() {
+  try {
+    const saved = localStorage.getItem(THEME_KEY)
+    if (saved === 'light' || saved === 'dark' || saved === 'system') state.theme = saved
+  } catch { /* ignore */ }
+  applyTheme()
+}
+export function setTheme(theme) {
+  state.theme = theme
+  try { localStorage.setItem(THEME_KEY, theme) } catch { /* ignore */ }
+  applyTheme()
+}
 
 // ---- local persistence (prototype) ----
 // The live data always comes from Google/Firestore, but the teacher's layout
