@@ -26,9 +26,4 @@ import { state, addForm, closeAddForm } from '../store'
   </aside>
 </template>
 
-<style scoped>
-.list{list-style:none;padding:0;margin:14px 0;display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow:auto}
-.list li{display:flex;align-items:center;gap:10px;border:1px solid var(--bd);border-radius:10px;padding:10px 12px;background:var(--sf)}
-.nm{flex:1;font-weight:600}
-.full{width:100%;margin-top:6px}
-</style>
+<style scoped src="../assets/css/AddFormPanel.css"></style>

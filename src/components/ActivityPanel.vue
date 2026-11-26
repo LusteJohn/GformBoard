@@ -16,7 +16,4 @@ import { state, runUndo } from '../store'
   </aside>
 </template>
 
-<style scoped>
-.log{list-style:none;padding:0;margin:16px 0 0;display:flex;flex-direction:column;gap:8px}
-.log li{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:9px 12px;font-size:14px}
-</style>
+<style scoped src="../assets/css/ActivityPanel.css"></style>

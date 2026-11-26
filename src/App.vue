@@ -134,20 +134,4 @@ async function signOut() {
     <button v-if="state.toastAction" class="toast-act" @click="runToastAction">{{ state.toastAction.label }}</button>
   </div>
 </template>
-<style scoped>
-.boot{min-height:100vh;display:grid;place-items:center;color:var(--mu)}
-.cnt{display:inline-block;margin-left:6px;background:var(--ac);color:var(--sf);border-radius:99px;font-size:11px;padding:0 6px;font-weight:700}
-.theme{padding:6px 10px}
-.toast-act{margin-left:10px;background:none;border:0;color:inherit;font-weight:700;text-decoration:underline;cursor:pointer}
-
-.settings{position:relative}
-.icon{display:grid;place-items:center;padding:7px}
-.menu{position:absolute;right:0;top:calc(100% + 8px);z-index:30;width:240px;background:var(--sf);border:1px solid var(--bd);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.22);padding:8px;display:flex;flex-direction:column;gap:6px}
-.menu-item{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:0;border-radius:8px;padding:9px 11px;font-weight:600;text-align:left}
-.menu-item:hover{background:var(--acs)}
-.menu-item.danger{color:var(--t3)}
-.menu-block{padding:6px 11px}
-.menu-label{display:block;font-size:12px;font-weight:600;color:var(--mu);margin-bottom:6px}
-.menu-block .theme{width:100%}
-.menu-sep{height:1px;background:var(--bd);margin:2px 0}
-</style>
+<style scoped src="./assets/css/App.css"></style>

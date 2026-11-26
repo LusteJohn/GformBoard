@@ -42,7 +42,4 @@ const list = () => run(async () => { msg.value = 'Your forms: ' + (await listMyF
   </div>
 </template>
 
-<style scoped>
-.fbsetup{position:fixed;left:16px;bottom:16px;z-index:40;background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;max-width:420px;box-shadow:0 6px 24px rgba(0,0,0,.15)}
-.row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-</style>
+<style scoped src="../assets/css/FirebaseSetup.css"></style>

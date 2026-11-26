@@ -39,7 +39,4 @@ const hasAny = computed(() => Object.keys(state.forms).length > 0)
     <p v-if="!list.length" class="mu">{{ hasAny ? 'No forms match. Clear the search or pick another type.' : 'No forms yet. Click “+ Add Google Form” to pick one from your Drive.' }}</p>
   </main>
 </template>
-<style scoped>
-.head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
-.actions{display:flex;gap:8px}
-</style>
+<style scoped src="../assets/css/FormsList.css"></style>
