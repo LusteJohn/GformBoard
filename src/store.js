@@ -271,21 +271,32 @@ export async function addForm(picked) {
   }
 }
 
+/** Returns a title value that doesn't collide with an existing response's title. */
+function uniqueTitle(f, key, value) {
+  const taken = new Set(f.responses.map(r => r.answers[key]))
+  if (!taken.has(value)) return value
+  let n = 2
+  while (taken.has(`${value} (${n})`)) n++
+  return `${value} (${n})`
+}
+
 /**
  * Adds or updates a response in the current form. Ids come from the caller or a
  * collision-safe generator (never `responses.length`), so removing a response
- * can't cause a later id to clash with an existing one.
+ * can't cause a later id to clash with an existing one. New responses also get a
+ * de-duplicated title so generated names don't repeat.
  */
 export function syncResponse(data = {}) {
   const f = form.value
-  if (!f) return null
-  const r = {
-    id: data.id || newResponseId(),
-    answers: data.answers || {},
-    status: data.status || 'To review',
-    notes: data.notes || '',
+  if (!f || !Array.isArray(f.responses)) return null
+  const id = data.id || newResponseId()
+  const idx = f.responses.findIndex(x => x.id === id)
+  const answers = { ...(data.answers || {}) }
+  const titleKey = f.layout?.title
+  if (idx < 0 && titleKey && answers[titleKey] != null) {
+    answers[titleKey] = uniqueTitle(f, titleKey, answers[titleKey])
   }
-  const idx = f.responses.findIndex(x => x.id === r.id)
+  const r = { id, answers, status: data.status || 'To review', notes: data.notes || '' }
   if (idx >= 0) f.responses.splice(idx, 1, { ...f.responses[idx], ...r })
   else f.responses.push(r)
   return r
@@ -293,6 +304,7 @@ export function syncResponse(data = {}) {
 
 export function moveResponse(id, status) {
   const f = form.value
+  if (!f || !Array.isArray(f.responses)) return
   const r = f.responses.find(x => x.id === id)
   if (!r || r.status === status) return
   const prev = r.status

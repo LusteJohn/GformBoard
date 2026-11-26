@@ -1,2 +1,4 @@
 .head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
 .actions{display:flex;gap:8px}
+.fc-head{display:flex;align-items:center;gap:8px}
+.fc-head .ico{color:var(--ac)}

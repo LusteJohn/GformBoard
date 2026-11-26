@@ -5,6 +5,7 @@ import {
   filteredResponses, toggleSelect, isSelected, hasFilters, resetFilters
 } from '../store'
 import { STATUSES } from '../data'
+import AppIcon from './AppIcon.vue'
 
 const byStatus = computed(() => form.value.layout.group === 'status')
 const rows = computed(() => filteredResponses.value)
@@ -22,7 +23,7 @@ const hasScore = r => r.answers.score !== undefined && r.answers.score !== ''
 </script>
 <template>
   <div v-if="!byStatus" class="note">
-    Grouped by “{{ label(form, form.layout.group) }}”. Switch Group by to Review status in Customize to drag cards between stages.
+    Grouped by “{{ label(form, form.layout.group) }}”. Dragging is only available when grouped by <b>Review status</b> — switch <b>Group by</b> in Customize to move cards between stages.
   </div>
 
   <div v-if="!rows.length" class="empty">
@@ -30,9 +31,9 @@ const hasScore = r => r.answers.score !== undefined && r.answers.score !== ''
     <button v-if="hasFilters" class="btn" @click="resetFilters">Clear filters</button>
   </div>
 
-  <div v-else class="board">
+  <div v-else class="board" :class="{ locked: !byStatus }">
     <div v-for="c in columns" :key="c.name" class="col" :class="{ ov: overCol === c.name }"
-         @dragover.prevent="overCol = c.name" @dragleave="overCol = null" @drop.prevent="drop(c.name)">
+         @dragover.prevent="byStatus && (overCol = c.name)" @dragleave="overCol = null" @drop.prevent="drop(c.name)">
       <h3><span>{{ c.name }}</span><span class="mu">{{ c.items.length }}</span></h3>
       <div v-for="r in c.items" :key="r.id" class="card" :class="{ on: isSelected(r.id) }" :draggable="byStatus"
            @dragstart="dragId = r.id" @dragend="dragId = overCol = null" @click="state.openId = r.id">
@@ -40,8 +41,8 @@ const hasScore = r => r.answers.score !== undefined && r.answers.score !== ''
           <input type="checkbox" class="sel" :checked="isSelected(r.id)" @click.stop="toggleSelect(r.id)" />
           <b>{{ r.answers[form.layout.title] }}</b>
           <span class="sp"></span>
-          <span v-if="r.notes" class="badge note" title="Has feedback notes">Note</span>
-          <span v-if="hasScore(r)" class="badge score">{{ r.answers.score }}</span>
+          <span v-if="r.notes" class="badge note" title="Has feedback notes"><AppIcon name="note" :size="12" /> Note</span>
+          <span v-if="hasScore(r)" class="badge score" title="Score"><AppIcon name="star" :size="12" /> {{ r.answers.score }}</span>
         </div>
         <div v-for="k in form.layout.show" :key="k" class="kv">{{ label(form, k) }}: <span>{{ r.answers[k] }}</span></div>
         <span v-if="!byStatus" class="tag" :class="statusClass(r.status)">{{ r.status }}</span>

@@ -7,7 +7,9 @@ button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
 .top{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--sf);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:5;flex-wrap:wrap}
 .logo{font-weight:700;font-size:18px;letter-spacing:-.3px}.sp{flex:1}.small{font-size:13px}.mu{color:var(--mu)}
 .av{width:32px;height:32px;border-radius:50%;background:var(--ac);color:var(--sf);display:grid;place-items:center;font-weight:600;font-size:13px}
-.btn{border:1px solid var(--bd);background:var(--sf);border-radius:8px;padding:7px 13px;font-weight:500}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--bd);background:var(--sf);border-radius:8px;padding:7px 13px;font-weight:500}
+.btn svg{flex:none}
+select.btn{display:inline-block}
 .btn:hover{background:var(--acs)}.pri{background:var(--ac);color:var(--sf);border-color:var(--ac)}.pri:hover{background:var(--ac);opacity:.9}.full{width:100%;margin-top:20px}
 .wrap{padding:22px 20px;max-width:1280px;margin:auto}h1{font-size:26px;margin:0 0 4px;letter-spacing:-.5px}
 .login{min-height:100vh;display:grid;place-items:center;text-align:center;padding:20px}.login .box{max-width:380px}.login h1{font-size:34px}
@@ -21,7 +23,7 @@ button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
 .tag{display:inline-block;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600;width:fit-content}
 .s0{background:var(--c1);color:var(--t1)}.s1{background:var(--c2);color:var(--t2)}.s2{background:var(--c3);color:var(--t3)}.ty{background:var(--acs);color:var(--ac)}
 .tabs{display:flex;gap:4px;border-bottom:1px solid var(--bd);margin:16px 0}
-.tab{background:none;border:0;border-bottom:2px solid transparent;padding:9px 14px;color:var(--mu);font-weight:600}.tab.on{color:var(--ac);border-color:var(--ac)}
+.tab{display:inline-flex;align-items:center;gap:6px;background:none;border:0;border-bottom:2px solid transparent;padding:9px 14px;color:var(--mu);font-weight:600}.tab.on{color:var(--ac);border-color:var(--ac)}
 .board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(260px,1fr);gap:14px;overflow-x:auto;padding-bottom:10px}
 .col{background:var(--acs);border-radius:12px;padding:10px;min-height:240px}.col.ov{outline:2px dashed var(--ac)}
 .col h3{margin:4px 6px 10px;font-size:14px;display:flex;justify-content:space-between}

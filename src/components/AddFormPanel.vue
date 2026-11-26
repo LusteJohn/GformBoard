@@ -1,5 +1,6 @@
 <script setup>
 import { state, addForm, closeAddForm } from '../store'
+import AppIcon from './AppIcon.vue'
 </script>
 
 <template>
@@ -16,7 +17,7 @@ import { state, addForm, closeAddForm } from '../store'
 
     <ul v-else class="list">
       <li v-for="f in state.driveForms" :key="f.id">
-        <span class="nm">{{ f.name }}</span>
+        <span class="nm"><AppIcon name="form" :size="16" /> {{ f.name }}</span>
         <button v-if="f.added" class="btn" disabled>Added</button>
         <button v-else class="btn pri" @click="addForm(f)">Add</button>
       </li>
