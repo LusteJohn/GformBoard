@@ -8,8 +8,12 @@ export const editLink = id => `https://docs.google.com/forms/d/${id}/edit`
 
 async function call(url, token) {
   const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-  if (!r.ok) throw new Error(`Google API error ${r.status}`)
-  return r.json()
+  const d = await r.json().catch(() => ({}))
+  if (!r.ok) {
+    const reason = d?.error?.message || d?.error?.status || `HTTP ${r.status}`
+    throw new Error(`Google API error ${r.status}: ${reason}`)
+  }
+  return d
 }
 export const fetchForm = (id, token) => call(`${BASE}/${id}`, token)
 
