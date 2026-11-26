@@ -8,6 +8,7 @@ import FormView from './components/FormView.vue'
 import CustomizePanel from './components/CustomizePanel.vue'
 import DetailPanel from './components/DetailPanel.vue'
 import ActivityPanel from './components/ActivityPanel.vue'
+import AddFormPanel from './components/AddFormPanel.vue'
 
 const initials = computed(() => {
   const n = state.user?.name || state.user?.email || '?'
@@ -92,6 +93,7 @@ async function signOut() {
     <CustomizePanel v-if="state.customizing" />
     <DetailPanel v-if="state.openId" />
     <ActivityPanel v-if="state.activityOpen" />
+    <AddFormPanel v-if="state.pickerOpen" />
   </template>
   <div v-if="state.toast" class="toast">
     {{ state.toast }}
