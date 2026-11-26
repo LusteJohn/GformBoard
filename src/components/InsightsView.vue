@@ -5,9 +5,18 @@ import { STATUSES } from '../data'
 
 const rs = computed(() => form.value.responses)
 const total = computed(() => rs.value.length)
-const graded = computed(() => Math.round(rs.value.filter(r => r.status === 'Graded').length / total.value * 100))
+const gradedCount = computed(() => rs.value.filter(r => r.status === 'Graded').length)
+const graded = computed(() => total.value ? Math.round(gradedCount.value / total.value * 100) : 0)
+
 const hasScore = computed(() => form.value.fields.some(f => f[0] === 'score'))
-const avg = computed(() => (rs.value.reduce((a, r) => a + Number(r.answers.score), 0) / total.value).toFixed(1))
+const scored = computed(() => rs.value.filter(r => {
+  const v = r.answers.score
+  return v !== undefined && v !== '' && !Number.isNaN(Number(v))
+}))
+const avg = computed(() => scored.value.length
+  ? (scored.value.reduce((a, r) => a + Number(r.answers.score), 0) / scored.value.length).toFixed(1)
+  : '—')
+
 const statusBars = computed(() => STATUSES.map(s => [s, rs.value.filter(r => r.status === s).length]))
 const groupKey = computed(() => {
   const g = form.value.layout.group
@@ -16,7 +25,8 @@ const groupKey = computed(() => {
 const groupBars = computed(() => groupKey.value
   ? [...new Set(rs.value.map(r => r.answers[groupKey.value]))].map(v => [v, rs.value.filter(r => r.answers[groupKey.value] === v).length])
   : [])
-const w = c => Math.max(4, c / total.value * 100) * 0.55 + '%'
+// Guard against divide-by-zero when a form (or filtered view) has 0 responses.
+const w = c => (total.value ? Math.max(4, c / total.value * 100) * 0.55 : 0) + '%'
 </script>
 <template>
   <div class="stats">
