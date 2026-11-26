@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { state } from '../store'
+import { state, refreshForms } from '../store'
 import { signIn, signInWithGoogle } from '../services/authService'
 
 const email = ref('')
@@ -16,6 +16,7 @@ async function submit() {
   if (res.success) {
     state.user = res
     state.screen = 'forms'
+    await refreshForms()
   } else {
     error.value = res.message
   }
@@ -29,6 +30,7 @@ async function google() {
   if (res.success) {
     state.user = res
     state.screen = 'forms'
+    await refreshForms()
   } else {
     error.value = res.message
   }

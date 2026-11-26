@@ -33,6 +33,17 @@ dist-ssr
 .env.*
 !.env.example
 
+# Secrets / credentials
+*.pem
+*.key
+*.p12
+*.pfx
+serviceAccountKey.json
+firebase-adminsdk-*.json
+*credentials*.json
+.secrets
+.firebase/
+
 # Cache
 .cache
 .vite

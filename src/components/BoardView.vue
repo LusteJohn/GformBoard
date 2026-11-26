@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import {
   form, state, label, statusClass, moveResponse,
-  filteredResponses, toggleSelect, isSelected, syncResponse, hasFilters, resetFilters
+  filteredResponses, toggleSelect, isSelected, hasFilters, resetFilters
 } from '../store'
 import { STATUSES } from '../data'
 
@@ -27,8 +27,7 @@ const hasScore = r => r.answers.score !== undefined && r.answers.score !== ''
 
   <div v-if="!rows.length" class="empty">
     <p class="mu">{{ hasFilters ? 'No responses match your filters.' : 'No responses yet.' }}</p>
-    <button v-if="!hasFilters" class="btn pri" @click="syncResponse">Sync a test response</button>
-    <button v-else class="btn" @click="resetFilters">Clear filters</button>
+    <button v-if="hasFilters" class="btn" @click="resetFilters">Clear filters</button>
   </div>
 
   <div v-else class="board">

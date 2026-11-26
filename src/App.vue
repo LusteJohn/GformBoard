@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, onUnmounted } from 'vue'
-import { state, filteredResponses, runToastAction } from './store'
+import { state, filteredResponses, runToastAction, refreshForms } from './store'
 import { signOutUser, onAuthChange } from './services/authService'
 import Login from './components/Login.vue'
 import FormsList from './components/FormsList.vue'
@@ -20,6 +20,7 @@ onMounted(() => {
     if (user) {
       state.user = { uid: user.uid, name: user.displayName, email: user.email, photoURL: user.photoURL }
       if (state.screen === 'login') state.screen = 'forms'
+      refreshForms()
     } else {
       state.user = null
       state.screen = 'login'
@@ -77,7 +78,6 @@ async function signOut() {
     <header class="top">
       <span class="logo">FormBoard</span><span class="sp"></span>
       <template v-if="state.screen === 'form'">
-        <button class="btn" @click="$refs.fv.sync()">Sync responses</button>
         <button class="btn" @click="state.customizing = true">Customize</button>
       </template>
       <button class="btn" @click="state.activityOpen = true">

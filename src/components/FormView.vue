@@ -1,8 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue'
 import {
-  form, state, syncResponse,
-  filteredResponses, groupField, groupOptions, hasFilters, resetFilters,
+  form, state,
+  groupField, groupOptions, hasFilters, resetFilters,
   bulkStatus, bulkScore, exportResponses, clearSelection
 } from '../store'
 import { STATUSES } from '../data'
@@ -11,7 +11,6 @@ import TableView from './TableView.vue'
 import InsightsView from './InsightsView.vue'
 
 const tabs = [['board', 'Board'], ['table', 'Table'], ['insights', 'Insights']]
-defineExpose({ sync: syncResponse })
 
 const rs = computed(() => form.value.responses)
 const total = computed(() => rs.value.length)

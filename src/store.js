@@ -1,10 +1,13 @@
 import { reactive, computed } from 'vue'
-import { FORMS, STATUSES, NAME_POOL } from './data'
+import { STATUSES } from './data'
+import { getToken } from './services/authService'
+import { loadMyForms, addGoogleForm } from './services/forms'
 
 export const state = reactive({
   screen: 'login', // login | forms | form
   user: null,
   authReady: false,
+  loadingForms: false,
   formId: null, tab: 'board',
   search: '', typeFilter: 'All',
   responseSearch: '', statusFilter: 'All', groupFilter: 'All',
@@ -12,7 +15,7 @@ export const state = reactive({
   openId: null, customizing: false, activityOpen: false,
   toast: '', toastAction: null,
   activity: [],
-  forms: structuredClone(FORMS),
+  forms: {},
 })
 
 export const form = computed(() => state.forms[state.formId])
@@ -97,6 +100,42 @@ export function openForm(id) {
   state.screen = 'form'
 }
 
+// ---- Google Forms loading ----
+/** Reads the signed-in user's saved forms live from Google into state.forms. */
+export async function refreshForms() {
+  if (!state.user) return
+  const token = getToken()
+  if (!token) { state.forms = {}; return }
+  state.loadingForms = true
+  try {
+    state.forms = await loadMyForms(state.user, token)
+  } catch (e) {
+    console.error('Failed to load forms:', e)
+    notify('Could not load your forms. Please sign in with Google again.')
+  } finally {
+    state.loadingForms = false
+  }
+}
+
+/** Opens the Drive picker, reads the chosen form, and saves it (auto-creating the collection). */
+export async function addForm() {
+  if (!state.user) return
+  const token = getToken()
+  if (!token) { notify('Sign in with Google to add forms from Drive.'); return }
+  state.loadingForms = true
+  try {
+    const result = await addGoogleForm(state.user, token)
+    if (!result) return
+    state.forms[result.form.id] = result.form
+    notify(result.existed ? `“${result.form.name}” was already added` : `Added “${result.form.name}”`)
+  } catch (e) {
+    console.error('Failed to add form:', e)
+    notify('Could not add the form: ' + e.message)
+  } finally {
+    state.loadingForms = false
+  }
+}
+
 export function moveResponse(id, status) {
   const f = form.value
   const r = f.responses.find(x => x.id === id)
@@ -107,16 +146,6 @@ export function moveResponse(id, status) {
   const undo = () => { r.status = prev }
   logActivity(`Moved “${name}” to ${status}`, undo)
   notify(`Moved to ${status}`, { label: 'Undo', fn: () => { undo(); notify('Move undone') } })
-}
-
-export function syncResponse() {
-  const f = form.value, i = f.responses.length
-  if (!f.responses.length) return
-  const answers = { ...f.responses[0].answers, name: NAME_POOL[(i * 5) % 12] }
-  if ('score' in answers) answers.score = 12 + (i % 8)
-  f.responses.push({ id: 'r' + i, notes: '', status: 'To review', answers })
-  logActivity('Synced a new response from Google Forms')
-  notify('1 new response synced from Google Forms')
 }
 
 // ---- bulk actions ----

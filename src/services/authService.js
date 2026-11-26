@@ -1,24 +1,31 @@
-
 import {
   signInWithPopup,
   signInWithEmailAndPassword,
   signOut,
   setPersistence,
   browserSessionPersistence,
-  onAuthStateChanged
+  onAuthStateChanged,
+  GoogleAuthProvider
 } from "firebase/auth";
-import { auth, googleProvider } from "../firebase";
+import { getFirebaseAuth, googleProvider } from "../firebase";
+import { ensureUser } from "./firestore";
+
+// Google OAuth access token for the current session. Needed by the Picker and
+// the Forms API (Firebase ID tokens cannot call Google APIs). It lives in memory
+// only and expires after ~1h, at which point the user signs in again.
+let googleAccessToken = null;
+export const getToken = () => googleAccessToken;
 
 export const signInWithGoogle = async () => {
   try {
-    const result = await signInWithPopup(
-      auth,
-      googleProvider
-    );
+    const auth = getFirebaseAuth();
+    const result = await signInWithPopup(auth, googleProvider);
+
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    googleAccessToken = credential?.accessToken ?? null;
 
     const user = result.user;
-
-    return {
+    const profile = {
       success: true,
       uid: user.uid,
       name: user.displayName,
@@ -26,39 +33,29 @@ export const signInWithGoogle = async () => {
       photoURL: user.photoURL
     };
 
+    // Create/refresh the user document (auto-creates the `users` collection).
+    try { await ensureUser({ uid: user.uid, displayName: user.displayName, email: user.email, photoURL: user.photoURL }); }
+    catch (e) { console.error("ensureUser failed:", e); }
+
+    return profile;
   } catch (error) {
     console.error("Google Sign-In Error:", error);
-
-    return {
-      success: false,
-      message: error.message
-    };
+    return { success: false, message: error.message };
   }
 };
 
 export const signIn = async (email, password) => {
   try {
-    const result = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-
+    const auth = getFirebaseAuth();
+    const result = await signInWithEmailAndPassword(auth, email, password);
     const user = result.user;
-
-    return {
-      success: true,
-      uid: user.uid,
-      name: user.displayName,
-      email: user.email,
-      photoURL: user.photoURL
-    };
-
+    // Email/password accounts have no Google token, so the Google form picker
+    // is unavailable until they sign in with Google.
+    googleAccessToken = null;
+    return { success: true, uid: user.uid, name: user.displayName, email: user.email, photoURL: user.photoURL };
   } catch (error) {
     console.error("Sign-In Error:", error);
-
     let message = error.message;
-
     switch (error.code) {
       case "auth/invalid-credential":
       case "auth/wrong-password":
@@ -74,29 +71,34 @@ export const signIn = async (email, password) => {
       default:
         break;
     }
-
-    return {
-      success: false,
-      message
-    };
+    return { success: false, message };
   }
 };
 
 export const signOutUser = async () => {
   try {
-    await signOut(auth);
+    await signOut(getFirebaseAuth());
+    googleAccessToken = null;
     return { success: true };
   } catch (error) {
     console.error("Sign-Out Error:", error);
-    return {
-      success: false,
-      message: error.message
-    };
+    return { success: false, message: error.message };
   }
 };
 
-setPersistence(auth, browserSessionPersistence).catch((error) => {
-  console.error("Persistence Error:", error);
-});
+function withAuth(fn) {
+  try { return fn(getFirebaseAuth()); }
+  catch (e) { console.error("Firebase not configured:", e.message); return null; }
+}
 
-export const onAuthChange = (callback) => onAuthStateChanged(auth, callback);
+const persistence = withAuth((auth) => setPersistence(auth, browserSessionPersistence));
+if (persistence && typeof persistence.catch === "function") {
+  persistence.catch((error) => console.error("Persistence Error:", error));
+}
+
+export const onAuthChange = (callback) => {
+  let auth;
+  try { auth = getFirebaseAuth(); }
+  catch { callback(null); return () => {}; }
+  return onAuthStateChanged(auth, callback);
+};
