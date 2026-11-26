@@ -1,13 +1,16 @@
 import { reactive, computed } from 'vue'
 import { STATUSES } from './data'
 import { getToken } from './services/authService'
-import { loadMyForms, addGoogleForm } from './services/forms'
+import { loadMyForms, addGoogleForm, getDriveForms } from './services/forms'
 
 export const state = reactive({
   screen: 'login', // login | forms | form
   user: null,
   authReady: false,
   loadingForms: false,
+  pickerOpen: false,
+  loadingDrive: false,
+  driveForms: [],
   formId: null, tab: 'board',
   search: '', typeFilter: 'All',
   responseSearch: '', statusFilter: 'All', groupFilter: 'All',
@@ -117,22 +120,54 @@ export async function refreshForms() {
   }
 }
 
-/** Opens the Drive picker, reads the chosen form, and saves it (auto-creating the collection). */
-export async function addForm() {
+/** Opens the add-form panel and lists the user's Drive forms (no Picker/API key). */
+export async function openAddForm() {
   if (!state.user) return
   const token = getToken()
   if (!token) { notify('Sign in with Google to add forms from Drive.'); return }
-  state.loadingForms = true
+  state.pickerOpen = true
+  state.loadingDrive = true
+  state.driveForms = []
   try {
-    const result = await addGoogleForm(state.user, token)
-    if (!result) return
+    const drive = await getDriveForms(token)
+    const existing = new Set(Object.keys(state.forms))
+    state.driveForms = drive.map(f => ({ ...f, added: existing.has(f.id) }))
+  } catch (e) {
+    console.error('Failed to list Drive forms:', e)
+    const m = e?.message || 'unknown error'
+    if (/not been used in project|has not been used|is disabled/i.test(m)) {
+      const pid = import.meta.env.VITE_FIREBASE_PROJECT_ID || 'your-project'
+      notify('One-time setup: enable the Google Drive API at console.developers.google.com/apis/api/drive.googleapis.com/overview?project=' + pid)
+    } else if (/insufficient authentication scopes|insufficientPermissions/i.test(m)) {
+      notify('Please sign out and sign in with Google again to grant Drive access.')
+    } else {
+      notify('Could not read your Drive forms: ' + m)
+    }
+    state.pickerOpen = false
+  } finally {
+    state.loadingDrive = false
+  }
+}
+
+export function closeAddForm() {
+  state.pickerOpen = false
+  state.driveForms = []
+}
+
+/** Reads a chosen Drive form and saves it (auto-creating the collection). */
+export async function addForm(picked) {
+  if (!state.user || !picked) return
+  const token = getToken()
+  if (!token) return
+  try {
+    const result = await addGoogleForm(state.user, token, picked)
     state.forms[result.form.id] = result.form
+    const item = state.driveForms.find(f => f.id === picked.id)
+    if (item) item.added = true
     notify(result.existed ? `“${result.form.name}” was already added` : `Added “${result.form.name}”`)
   } catch (e) {
     console.error('Failed to add form:', e)
     notify('Could not add the form: ' + e.message)
-  } finally {
-    state.loadingForms = false
   }
 }
 

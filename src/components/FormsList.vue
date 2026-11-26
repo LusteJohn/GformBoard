@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { state, openForm, addForm, refreshForms } from '../store'
+import { state, openForm, openAddForm, refreshForms } from '../store'
 const types = ['All', 'Quiz', 'Survey', 'Exam']
 const list = computed(() => Object.entries(state.forms).filter(([, f]) =>
   (state.typeFilter === 'All' || f.type === state.typeFilter) &&
@@ -17,7 +17,7 @@ const hasAny = computed(() => Object.keys(state.forms).length > 0)
       </div>
       <div class="actions">
         <button class="btn" :disabled="state.loadingForms" @click="refreshForms">Refresh</button>
-        <button class="btn pri" :disabled="state.loadingForms" @click="addForm">
+        <button class="btn pri" :disabled="state.loadingForms" @click="openAddForm">
           {{ state.loadingForms ? 'Loading…' : '+ Add Google Form' }}
         </button>
       </div>

@@ -1,17 +1,17 @@
-// Ties the Google flow together: pick a Drive form -> read it live -> save the
-// form (auto-creating the Firestore `forms` collection) -> shape it for the UI.
-import { pickForm } from './picker'
-import { fetchForm, fetchResponses, questionsOf, defaultLayout, isQuiz, toAppForm } from './googleForms'
+// Ties the Google flow together: list the user's Drive forms -> read one live
+// -> save it (auto-creating the Firestore `forms` collection) -> shape it for the UI.
+import { listDriveForms } from './drive'
+import { fetchForm, fetchResponses, questionsOf, defaultLayout, isQuiz, toAppForm, formLink } from './googleForms'
 import { saveForm, listMyForms, loadReviews } from './firestore'
 
-/**
- * Picker -> read -> persist. Returns { existed, form } or null if cancelled.
- * `form` is already in the app's UI shape.
- */
-export async function addGoogleForm(user, token) {
-  const picked = await pickForm(token)
-  if (!picked) return null
+/** All forms in the signed-in user's Drive, as [{ id, name, modifiedTime }]. */
+export const getDriveForms = (token) => listDriveForms(token)
 
+/**
+ * Reads a chosen Drive form and persists it. `picked` is { id, name }.
+ * Returns { existed, form } where `form` is in the app's UI shape.
+ */
+export async function addGoogleForm(user, token, picked) {
   const googleForm = await fetchForm(picked.id, token)
   const questions = questionsOf(googleForm)
   const layout = defaultLayout(questions)
@@ -19,7 +19,7 @@ export async function addGoogleForm(user, token) {
   const saved = await saveForm(user, picked, {
     type: isQuiz(googleForm) ? 'quiz' : 'other',
     layout,
-    link: `https://docs.google.com/forms/d/${picked.id}/viewform`,
+    link: formLink(picked.id),
   })
 
   const responses = saved.existed ? await fetchResponses(picked.id, token) : []

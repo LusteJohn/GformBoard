@@ -1,10 +1,8 @@
 <script setup>
 import { ref } from 'vue'
-import { signInWithGoogle, signOutUser } from '../services/authService'
-import { pickForm } from '../services/picker'
-import { fetchForm, questionsOf, defaultLayout, isQuiz } from '../services/googleForms'
-import { saveForm, seedCollections, listMyForms } from '../services/firestore'
-import { getToken } from '../services/authService'
+import { signInWithGoogle, signOutUser, getToken } from '../services/authService'
+import { seedCollections, listMyForms } from '../services/firestore'
+import { getDriveForms, addGoogleForm } from '../services/forms'
 
 const user = ref(null), msg = ref('Not signed in'), busy = ref(false)
 const run = async fn => { busy.value = true; try { await fn() } catch (e) { msg.value = 'Error: ' + e.message } busy.value = false }
@@ -22,12 +20,11 @@ const seed = () => run(async () => {
 })
 const addForm = () => run(async () => {
   if (!getToken()) await login()
-  const picked = await pickForm(getToken())
-  if (!picked) return (msg.value = 'Cancelled')
-  const form = await fetchForm(picked.id, getToken())
-  const qs = questionsOf(form)
-  const r = await saveForm({ uid: user.value.uid }, picked, { type: isQuiz(form) ? 'quiz' : 'other', layout: defaultLayout(qs) })
-  msg.value = r.existed ? `“${picked.name}” was already added` : `Added “${picked.name}” (${qs.length} questions)`
+  const drive = await getDriveForms(getToken())
+  if (!drive.length) return (msg.value = 'No Google Forms found in your Drive.')
+  const picked = drive[0]
+  const r = await addGoogleForm({ uid: user.value.uid }, getToken(), picked)
+  msg.value = r.existed ? `“${picked.name}” was already added` : `Added “${picked.name}”`
 })
 const list = () => run(async () => { msg.value = 'Your forms: ' + (await listMyForms(user.value.uid)).map(f => f.title).join(', ') })
 </script>
