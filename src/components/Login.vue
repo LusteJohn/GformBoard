@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { state, refreshForms } from '../store'
 import { signIn, signInWithGoogle } from '../services/authService'
 import AppIcon from './AppIcon.vue'
+import logoUrl from '../assets/images/gformboard-icon.svg'
 
 const email = ref('')
 const password = ref('')
@@ -41,8 +42,8 @@ async function google() {
   <div class="login">
     <div class="card">
       <div class="brand">
-        <span class="mark">FB</span>
-        <span class="brand-name">FormBoard</span>
+        <img :src="logoUrl" alt="" class="mark-img" />
+        <span class="brand-name">GFormBoard</span>
       </div>
 
       <h1>Welcome back</h1>
