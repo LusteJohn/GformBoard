@@ -19,8 +19,12 @@ const initials = computed(() => {
 
 const settingsOpen = ref(false)
 const settingsEl = ref(null)
+const confirmSignOut = ref(false)
 function toggleSettings() { settingsOpen.value = !settingsOpen.value }
 function openActivity() { state.activityOpen = true; settingsOpen.value = false }
+function askSignOut() { settingsOpen.value = false; confirmSignOut.value = true }
+function cancelSignOut() { confirmSignOut.value = false }
+async function doSignOut() { confirmSignOut.value = false; await signOut() }
 function onDocClick(e) {
   if (settingsOpen.value && settingsEl.value && !settingsEl.value.contains(e.target)) settingsOpen.value = false
 }
@@ -64,6 +68,7 @@ function onKey(e) {
     state.customizing = false
     state.activityOpen = false
     settingsOpen.value = false
+    confirmSignOut.value = false
     return
   }
   const tag = (e.target.tagName || '').toLowerCase()
@@ -108,7 +113,10 @@ function resetDemo() {
   <Login v-else-if="state.screen === 'login'" />
   <template v-else>
     <header class="top">
-      <span class="logo">FormBoard</span><span class="sp"></span>
+      <span class="brand">
+        <img src="/icon.svg" alt="" class="brand-ico" />
+        <span class="logo">GFormBoard</span>
+      </span><span class="sp"></span>
       <template v-if="state.screen === 'form'">
         <button class="btn" @click="state.customizing = true"><AppIcon name="sliders" :size="16" /> Customize</button>
       </template>
@@ -135,7 +143,7 @@ function resetDemo() {
           </div>
           <div class="menu-sep"></div>
           <button class="menu-item" @click="resetDemo"><span class="mi-label"><AppIcon name="refresh" :size="16" /> Reset demo data</span></button>
-          <button class="menu-item danger" @click="signOut"><span class="mi-label"><AppIcon name="logout" :size="16" /> Sign out</span></button>
+          <button class="menu-item danger" @click="askSignOut"><span class="mi-label"><AppIcon name="logout" :size="16" /> Sign out</span></button>
         </div>
       </div>
     </header>
@@ -146,6 +154,22 @@ function resetDemo() {
     <DetailPanel v-if="state.openId" />
     <ActivityPanel v-if="state.activityOpen" />
     <AddFormPanel v-if="state.pickerOpen" />
+    <div v-if="confirmSignOut" class="confirm-wrap">
+      <div class="shade" @click="cancelSignOut"></div>
+      <div class="modal" role="dialog" aria-modal="true" aria-label="Confirm sign out">
+        <div class="modal-head">
+          <h2>Sign out?</h2>
+          <button class="x" aria-label="Close" @click="cancelSignOut"><AppIcon name="close" :size="20" /></button>
+        </div>
+        <div class="modal-body">
+          <p class="mu">You’ll need to sign in again to access your forms. Any review changes are saved.</p>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" @click="cancelSignOut">Cancel</button>
+          <button class="btn pri" @click="doSignOut">Sign out</button>
+        </div>
+      </div>
+    </div>
   </template>
   <div v-if="state.toast" class="toast" @mouseenter="pauseToast" @mouseleave="resumeToast">
     {{ state.toast }}

@@ -1,6 +1,6 @@
 .card{width:min(400px,100%);background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:28px 26px;box-shadow:0 18px 60px rgba(0,0,0,.18);text-align:left}
 .brand{display:flex;align-items:center;gap:10px;margin-bottom:18px}
-.mark{width:34px;height:34px;border-radius:9px;background:var(--ac);color:var(--sf);display:grid;place-items:center;font-weight:800;font-size:13px;letter-spacing:.5px}
+.mark-img{width:34px;height:34px;border-radius:9px;display:block}
 .brand-name{font-weight:700;font-size:16px}
 .card h1{font-size:24px;margin:0 0 6px;letter-spacing:-.4px}
 .sub{margin:0 0 20px;color:var(--mu);font-size:14px}
