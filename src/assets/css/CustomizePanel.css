@@ -9,4 +9,5 @@
 .modal-body select{width:100%;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg)}
 .checks{max-height:34vh;overflow-y:auto;border:1px solid var(--bd);border-radius:10px;padding:6px 10px;background:var(--bg)}
 .modal-body .ck{display:flex;gap:8px;align-items:center;padding:5px 0;font-weight:400;font-size:14px;margin:0}
+.warn{color:var(--t3);font-size:13px;margin:10px 0 0}
 .modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:14px 18px;border-top:1px solid var(--bd);background:var(--sf)}

@@ -1,6 +1,8 @@
 <script setup>
+import { computed } from 'vue'
 import { form, state } from '../store'
 const skip = ['name', 'q1', 'essay', 'comment', 'student', 'score'] // free-text/unique fields make poor columns
+const noneSelected = computed(() => !form.value.layout.show.length)
 const close = () => { state.customizing = false }
 </script>
 <template>
@@ -32,11 +34,12 @@ const close = () => { state.customizing = false }
             <input type="checkbox" :value="k" v-model="form.layout.show" /> {{ t }}
           </label>
         </div>
+        <p v-if="noneSelected" class="warn">Pick at least one field to show on cards.</p>
       </div>
 
       <footer class="modal-foot">
         <button type="button" class="btn" @click="close">Cancel</button>
-        <button type="submit" class="btn pri">Done</button>
+        <button type="submit" class="btn pri" :disabled="noneSelected">Done</button>
       </footer>
     </form>
   </div>

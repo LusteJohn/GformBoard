@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { state, filteredResponses, runToastAction, refreshForms, setTheme } from './store'
+import { state, filteredResponses, runToastAction, refreshForms, setTheme, pauseToast, resumeToast } from './store'
 import { signOutUser, onAuthChange } from './services/authService'
 import Login from './components/Login.vue'
 import FormsList from './components/FormsList.vue'
@@ -127,7 +127,7 @@ async function signOut() {
     <ActivityPanel v-if="state.activityOpen" />
     <AddFormPanel v-if="state.pickerOpen" />
   </template>
-  <div v-if="state.toast" class="toast">
+  <div v-if="state.toast" class="toast" @mouseenter="pauseToast" @mouseleave="resumeToast">
     {{ state.toast }}
     <button v-if="state.toastAction" class="toast-act" @click="runToastAction">{{ state.toastAction.label }}</button>
   </div>

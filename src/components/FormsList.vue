@@ -4,10 +4,17 @@ import { state, openForm, openAddForm, refreshForms } from '../store'
 import AppIcon from './AppIcon.vue'
 // Derive chips from the actual form types so nothing (e.g. "Other") is hidden.
 const types = computed(() => ['All', ...Array.from(new Set(Object.values(state.forms).map(f => f.type))).sort()])
-const list = computed(() => Object.entries(state.forms).filter(([, f]) =>
-  (state.typeFilter === 'All' || f.type === state.typeFilter) &&
-  f.name.toLowerCase().includes(state.search.toLowerCase())))
+const list = computed(() => Object.entries(state.forms)
+  .filter(([, f]) =>
+    (state.typeFilter === 'All' || f.type === state.typeFilter) &&
+    f.name.toLowerCase().includes(state.search.toLowerCase()))
+  .sort((a, b) => (b[1].modifiedAt || 0) - (a[1].modifiedAt || 0)))
 const pending = f => f.responses.filter(r => r.status === 'To review').length
+const reviewedPct = f => {
+  const t = f.responses.length
+  if (!t) return 0
+  return Math.round(f.responses.filter(r => r.status !== 'To review').length / t * 100)
+}
 const hasAny = computed(() => Object.keys(state.forms).length > 0)
 function clearFilters() { state.search = ''; state.typeFilter = 'All' }
 </script>
@@ -33,6 +40,7 @@ function clearFilters() { state.search = ''; state.typeFilter = 'All' }
       <button v-for="[id, f] in list" :key="id" class="fc" @click="openForm(id)">
         <span class="tag ty">{{ f.type }}</span>
         <span class="fc-head"><AppIcon name="form" :size="18" /> <b>{{ f.name }}</b></span>
+        <div class="prog" :title="`${reviewedPct(f)}% reviewed`"><i :style="{ width: reviewedPct(f) + '%' }"></i></div>
         <span class="mu">{{ f.responses.length }} responses</span>
         <span v-if="f.modified" class="mu small">{{ f.modified }}</span>
         <span v-if="pending(f)" class="tag s0">{{ pending(f) }} to review</span>

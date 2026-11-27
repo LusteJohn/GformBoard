@@ -11,3 +11,8 @@
 .col-empty{padding:8px;color:var(--mu);font-size:13px}
 .card:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 .board.locked .card{cursor:default}
+.board-wrap{position:relative}
+.board{scroll-snap-type:x proximity}
+.col{scroll-snap-align:start}
+.board-wrap.scrollable::after{content:"";position:absolute;top:0;right:0;bottom:10px;width:46px;background:linear-gradient(to right,transparent,var(--bg));pointer-events:none;border-radius:0 12px 12px 0}
+.scroll-hint{position:absolute;right:10px;top:-20px;font-size:12px;font-weight:600;color:var(--mu)}

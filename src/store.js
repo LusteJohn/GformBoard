@@ -154,11 +154,21 @@ export function clearSelection() { state.selected = [] }
 
 // ---- toast + activity log ----
 let toastTimer
+const TOAST_MS = 2000
+const TOAST_ACTION_MS = 6000
 export function notify(msg, action) {
   state.toast = msg
   state.toastAction = action || null
   clearTimeout(toastTimer)
-  toastTimer = setTimeout(() => { state.toast = ''; state.toastAction = null }, action ? 5000 : 1800)
+  toastTimer = setTimeout(() => { state.toast = ''; state.toastAction = null }, action ? TOAST_ACTION_MS : TOAST_MS)
+}
+/** Pause auto-dismiss while the pointer is over the toast. */
+export function pauseToast() { clearTimeout(toastTimer) }
+/** Resume the auto-dismiss countdown after the pointer leaves. */
+export function resumeToast() {
+  if (!state.toast) return
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => { state.toast = ''; state.toastAction = null }, state.toastAction ? TOAST_ACTION_MS : TOAST_MS)
 }
 export function toast(msg) { notify(msg) }
 export function runToastAction() {
