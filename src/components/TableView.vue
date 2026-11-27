@@ -16,8 +16,16 @@ const hasScore = r => r.answers.score !== undefined && r.answers.score !== ''
 </script>
 <template>
   <div v-if="!rows.length" class="empty">
-    <p class="mu">{{ hasFilters ? 'No responses match your filters.' : 'No responses yet.' }}</p>
-    <button v-if="hasFilters" class="btn" @click="resetFilters">Clear filters</button>
+    <template v-if="hasFilters">
+      <p class="empty-title">No responses match your filters</p>
+      <p class="mu small">Try a different search or clear the filters.</p>
+      <button class="btn" @click="resetFilters">Clear filters</button>
+    </template>
+    <template v-else>
+      <p class="empty-title">No responses yet</p>
+      <p class="mu small">Share your form to start collecting responses.</p>
+      <a v-if="form.link" class="btn pri" :href="form.link" target="_blank" rel="noopener">Open form</a>
+    </template>
   </div>
   <div v-else class="tw">
     <table>
@@ -27,7 +35,9 @@ const hasScore = r => r.answers.score !== undefined && r.answers.score !== ''
         <th>Status</th>
       </tr></thead>
       <tbody>
-        <tr v-for="r in rows" :key="r.id" :class="{ sel: isSelected(r.id) }" @click="state.openId = r.id">
+        <tr v-for="r in rows" :key="r.id" :class="{ sel: isSelected(r.id) }" role="button" tabindex="0"
+            :aria-label="`Open response: ${r.answers[form.layout.title]}`"
+            @click="state.openId = r.id" @keydown.enter.prevent="state.openId = r.id" @keydown.space.prevent="state.openId = r.id">
           <td class="cbox" @click.stop><input type="checkbox" :checked="isSelected(r.id)" @change="toggleSelect(r.id)" /></td>
           <td v-for="k in cols" :key="k">
             {{ r.answers[k] }}

@@ -6,5 +6,8 @@
 .badge.note{background:var(--acs);color:var(--ac)}
 .badge.score{background:var(--c2);color:var(--t2)}
 .empty{text-align:center;padding:40px 0}
-.empty .btn{margin-top:8px}
+.empty-title{font-weight:700;font-size:16px;margin:0 0 4px}
+.empty .btn{margin-top:12px}
+.col-empty{padding:8px;color:var(--mu);font-size:13px}
+.card:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 .board.locked .card{cursor:default}

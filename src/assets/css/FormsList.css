@@ -2,3 +2,6 @@
 .actions{display:flex;gap:8px}
 .fc-head{display:flex;align-items:center;gap:8px}
 .fc-head .ico{color:var(--ac)}
+.empty{text-align:center;padding:48px 0}
+.empty-title{font-weight:700;font-size:16px;margin:0 0 4px}
+.empty .btn{margin-top:12px}
