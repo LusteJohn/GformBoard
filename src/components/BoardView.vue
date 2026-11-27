@@ -27,8 +27,16 @@ const hasScore = r => r.answers.score !== undefined && r.answers.score !== ''
   </div>
 
   <div v-if="!rows.length" class="empty">
-    <p class="mu">{{ hasFilters ? 'No responses match your filters.' : 'No responses yet.' }}</p>
-    <button v-if="hasFilters" class="btn" @click="resetFilters">Clear filters</button>
+    <template v-if="hasFilters">
+      <p class="empty-title">No responses match your filters</p>
+      <p class="mu small">Try a different search or clear the filters.</p>
+      <button class="btn" @click="resetFilters">Clear filters</button>
+    </template>
+    <template v-else>
+      <p class="empty-title">No responses yet</p>
+      <p class="mu small">Share your form to start collecting responses.</p>
+      <a v-if="form.link" class="btn pri" :href="form.link" target="_blank" rel="noopener">Open form</a>
+    </template>
   </div>
 
   <div v-else class="board" :class="{ locked: !byStatus }">
@@ -36,7 +44,9 @@ const hasScore = r => r.answers.score !== undefined && r.answers.score !== ''
          @dragover.prevent="byStatus && (overCol = c.name)" @dragleave="overCol = null" @drop.prevent="drop(c.name)">
       <h3><span>{{ c.name }}</span><span class="mu">{{ c.items.length }}</span></h3>
       <div v-for="r in c.items" :key="r.id" class="card" :class="{ on: isSelected(r.id) }" :draggable="byStatus"
-           @dragstart="dragId = r.id" @dragend="dragId = overCol = null" @click="state.openId = r.id">
+           role="button" tabindex="0" :aria-label="`Open response: ${r.answers[form.layout.title]}`"
+           @dragstart="dragId = r.id" @dragend="dragId = overCol = null"
+           @click="state.openId = r.id" @keydown.enter.prevent="state.openId = r.id" @keydown.space.prevent="state.openId = r.id">
         <div class="card-top">
           <input type="checkbox" class="sel" :checked="isSelected(r.id)" @click.stop="toggleSelect(r.id)" />
           <b>{{ r.answers[form.layout.title] }}</b>
@@ -47,7 +57,7 @@ const hasScore = r => r.answers.score !== undefined && r.answers.score !== ''
         <div v-for="k in form.layout.show" :key="k" class="kv">{{ label(form, k) }}: <span>{{ r.answers[k] }}</span></div>
         <span v-if="!byStatus" class="tag" :class="statusClass(r.status)">{{ r.status }}</span>
       </div>
-      <div v-if="!c.items.length" class="mu" style="padding:8px">Nothing here yet.</div>
+      <div v-if="!c.items.length" class="col-empty">{{ byStatus ? 'Drop cards here' : 'No responses' }}</div>
     </div>
   </div>
 </template>

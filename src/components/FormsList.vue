@@ -9,6 +9,7 @@ const list = computed(() => Object.entries(state.forms).filter(([, f]) =>
   f.name.toLowerCase().includes(state.search.toLowerCase())))
 const pending = f => f.responses.filter(r => r.status === 'To review').length
 const hasAny = computed(() => Object.keys(state.forms).length > 0)
+function clearFilters() { state.search = ''; state.typeFilter = 'All' }
 </script>
 <template>
   <main class="wrap">
@@ -38,7 +39,18 @@ const hasAny = computed(() => Object.keys(state.forms).length > 0)
         <span v-else class="tag s1">All reviewed</span>
       </button>
     </div>
-    <p v-if="!list.length" class="mu">{{ hasAny ? 'No forms match. Clear the search or pick another type.' : 'No forms yet. Click “+ Add Google Form” to pick one from your Drive.' }}</p>
+    <div v-if="!list.length" class="empty">
+      <template v-if="hasAny">
+        <p class="empty-title">No forms match</p>
+        <p class="mu small">Try a different search or type.</p>
+        <button class="btn" @click="clearFilters">Clear search</button>
+      </template>
+      <template v-else>
+        <p class="empty-title">No forms yet</p>
+        <p class="mu small">Add a Google Form from your Drive to get started.</p>
+        <button class="btn pri" @click="openAddForm">Add Google Form</button>
+      </template>
+    </div>
   </main>
 </template>
 <style scoped src="../assets/css/FormsList.css"></style>

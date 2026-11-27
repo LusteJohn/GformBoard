@@ -2,4 +2,6 @@
 tr.sel{background:var(--acs)}
 .badge.score{background:var(--c2);color:var(--t2);font-size:11px;font-weight:700;margin-left:6px}
 .empty{text-align:center;padding:40px 0}
-.empty .btn{margin-top:8px}
+.empty-title{font-weight:700;font-size:16px;margin:0 0 4px}
+.empty .btn{margin-top:12px}
+tbody tr:focus-visible{outline:2px solid var(--ac);outline-offset:-2px}

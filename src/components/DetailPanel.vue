@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted, ref, nextTick } from 'vue'
 import { form, state, toast } from '../store'
 import { STATUSES } from '../data'
 import AppIcon from './AppIcon.vue'
@@ -24,10 +24,40 @@ function clampScore(e) {
 }
 const close = () => { state.openId = null }
 function save() { state.openId = null; toast('Review saved') }
+
+// Focus management: move focus into the dialog on open, trap Tab, restore on close.
+const modalEl = ref(null)
+let lastFocused = null
+onMounted(() => {
+  lastFocused = document.activeElement
+  nextTick(() => {
+    const el = modalEl.value?.querySelector('select, input, textarea')
+      || modalEl.value?.querySelector('button')
+    if (el && el.focus) el.focus()
+  })
+})
+onUnmounted(() => {
+  if (lastFocused && typeof lastFocused.focus === 'function') {
+    try { lastFocused.focus() } catch { /* element gone */ }
+  }
+})
+function onKeydown(e) {
+  if (e.key === 'Escape') { e.stopPropagation(); close(); return }
+  if (e.key !== 'Tab') return
+  const nodes = modalEl.value?.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  )
+  if (!nodes || !nodes.length) return
+  const list = Array.from(nodes).filter(n => n.offsetParent !== null)
+  if (!list.length) return
+  const first = list[0], last = list[list.length - 1]
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+}
 </script>
 <template>
   <div class="shade" @click="close"></div>
-  <div class="modal" role="dialog" aria-modal="true" aria-label="Review response">
+  <div class="modal" ref="modalEl" role="dialog" aria-modal="true" aria-label="Review response" tabindex="-1" @keydown="onKeydown">
     <form class="modal-form" @submit.prevent="save">
       <header class="modal-head">
         <h2>{{ r.answers[form.layout.title] }}</h2>
