@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import {
   form, state,
   groupField, groupOptions, hasFilters, resetFilters,
-  bulkStatus, bulkScore, exportResponses, clearSelection
+  bulkStatus, bulkScore, exportResponses, clearSelection, goToForms
 } from '../store'
 import { STATUSES } from '../data'
 import BoardView from './BoardView.vue'
@@ -33,7 +33,11 @@ function applyScore() {
 </script>
 <template>
   <main class="wrap">
-    <button class="btn" @click="state.screen = 'forms'">← All forms</button>
+    <nav class="crumbs">
+      <button class="btn back" @click="goToForms"><AppIcon name="arrow-left" :size="16" /> All forms</button>
+      <span class="sep">/</span>
+      <span class="cur">{{ form.name }}</span>
+    </nav>
     <div style="margin-top:14px">
       <h1>{{ form.name }}</h1>
       <span class="mu">{{ form.responses.length }} responses · {{ form.type }}</span>
@@ -42,6 +46,11 @@ function applyScore() {
         <span class="chip-stat">{{ gradedPct }}% graded</span>
         <span v-if="hasScore" class="chip-stat">Avg score {{ avg }}</span>
       </div>
+    </div>
+
+    <div v-if="state.tab === 'board' && total" class="hintbar">
+      <AppIcon name="board" :size="16" />
+      <span>Drag cards between columns to change status · Click a card to review &amp; leave notes.</span>
     </div>
 
     <div class="filters">

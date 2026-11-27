@@ -1,0 +1,6 @@
+.coach{position:fixed;left:16px;bottom:16px;z-index:12;width:min(340px,calc(100vw - 32px));background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px 16px;box-shadow:0 12px 40px rgba(0,0,0,.22)}
+.coach-dots{display:flex;gap:5px;margin-bottom:8px}
+.coach-dots span{width:7px;height:7px;border-radius:99px;background:var(--bd)}
+.coach-dots span.on{background:var(--ac);width:16px}
+.coach h3{margin:0 0 4px;font-size:15px}
+.coach-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}

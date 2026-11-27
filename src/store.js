@@ -194,6 +194,15 @@ export function openForm(id) {
   state.selected = []
   resetFilters()
   state.screen = 'form'
+  // Support the browser Back button (handled via popstate in App.vue).
+  try { history.pushState({ formBoardForm: id }, '') } catch { /* non-browser */ }
+}
+
+/** Returns to the forms list (in-app back / breadcrumb). */
+export function goToForms() {
+  state.screen = 'forms'
+  state.formId = null
+  state.openId = null
 }
 
 // ---- Google Forms loading ----
