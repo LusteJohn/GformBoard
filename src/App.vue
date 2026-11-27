@@ -10,6 +10,7 @@ import DetailPanel from './components/DetailPanel.vue'
 import ActivityPanel from './components/ActivityPanel.vue'
 import AddFormPanel from './components/AddFormPanel.vue'
 import AppIcon from './components/AppIcon.vue'
+import CoachMarks from './components/CoachMarks.vue'
 
 const initials = computed(() => {
   const n = state.user?.name || state.user?.email || '?'
@@ -39,12 +40,23 @@ onMounted(() => {
   })
   window.addEventListener('keydown', onKey)
   document.addEventListener('click', onDocClick)
+  window.addEventListener('popstate', onPop)
 })
 onUnmounted(() => {
   unsub && unsub()
   window.removeEventListener('keydown', onKey)
   document.removeEventListener('click', onDocClick)
+  window.removeEventListener('popstate', onPop)
 })
+
+// Browser back/forward: leaving a form returns to the forms list.
+function onPop() {
+  if (state.screen === 'form') {
+    state.screen = 'forms'
+    state.formId = null
+    state.openId = null
+  }
+}
 
 function onKey(e) {
   if (e.key === 'Escape') {
@@ -121,6 +133,7 @@ async function signOut() {
       </div>
     </header>
     <FormsList v-if="state.screen === 'forms'" />
+    <CoachMarks v-if="state.screen === 'forms'" />
     <FormView v-else ref="fv" />
     <CustomizePanel v-if="state.customizing" />
     <DetailPanel v-if="state.openId" />
