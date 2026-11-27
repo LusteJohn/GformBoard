@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { state, filteredResponses, runToastAction, refreshForms, setTheme, pauseToast, resumeToast } from './store'
+import { state, filteredResponses, runToastAction, refreshForms, setTheme, pauseToast, resumeToast, resetDemoData } from './store'
 import { signOutUser, onAuthChange } from './services/authService'
 import Login from './components/Login.vue'
 import FormsList from './components/FormsList.vue'
@@ -95,6 +95,12 @@ async function signOut() {
   state.user = null
   state.screen = 'login'
 }
+
+function resetDemo() {
+  settingsOpen.value = false
+  if (!window.confirm('Reset local layout and review changes to a clean slate?')) return
+  resetDemoData()
+}
 </script>
 
 <template>
@@ -128,6 +134,7 @@ async function signOut() {
             </select>
           </div>
           <div class="menu-sep"></div>
+          <button class="menu-item" @click="resetDemo"><span class="mi-label"><AppIcon name="refresh" :size="16" /> Reset demo data</span></button>
           <button class="menu-item danger" @click="signOut"><span class="mi-label"><AppIcon name="logout" :size="16" /> Sign out</span></button>
         </div>
       </div>

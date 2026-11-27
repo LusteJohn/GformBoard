@@ -40,6 +40,9 @@ const hasScore = r => r.answers.score !== undefined && r.answers.score !== ''
   </div>
 
   <div v-else class="board-wrap" :class="{ scrollable: columns.length > 3 }">
+    <div v-if="byStatus" class="legend">
+      <span v-for="s in STATUSES" :key="s" class="lg"><i :class="statusClass(s)"></i>{{ s }}</span>
+    </div>
     <span v-if="columns.length > 3" class="scroll-hint">Scroll →</span>
     <div class="board" :class="{ locked: !byStatus }">
       <div v-for="c in columns" :key="c.name" class="col" :class="{ ov: overCol === c.name }"
