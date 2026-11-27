@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, nextTick } from 'vue'
-import { form, state, toast } from '../store'
+import { form, state, toast, statusClass } from '../store'
 import { STATUSES } from '../data'
 import AppIcon from './AppIcon.vue'
 const r = computed(() => form.value.responses.find(x => x.id === state.openId))
@@ -23,7 +23,12 @@ function clampScore(e) {
   e.target.value = v
 }
 const close = () => { state.openId = null }
-function save() { state.openId = null; toast('Review saved') }
+const saving = ref(false)
+function save() {
+  if (saving.value) return
+  saving.value = true
+  setTimeout(() => { saving.value = false; state.openId = null; toast('Review saved') }, 250)
+}
 
 // Focus management: move focus into the dialog on open, trap Tab, restore on close.
 const modalEl = ref(null)
@@ -68,7 +73,9 @@ function onKeydown(e) {
         <div v-for="[k, t] in form.fields" :key="k" class="ans"><small>{{ t }}</small>{{ r.answers[k] }}</div>
 
         <label><AppIcon name="check" :size="14" /> Status</label>
-        <select v-model="r.status"><option v-for="s in STATUSES" :key="s">{{ s }}</option></select>
+        <div class="status-pills">
+          <button v-for="s in STATUSES" :key="s" type="button" class="pill" :class="[statusClass(s), { on: r.status === s }]" @click="r.status = s">{{ s }}</button>
+        </div>
 
         <template v-if="hasScore">
           <label><AppIcon name="star" :size="14" /> {{ scoreLabel }}<span v-if="scoreMax != null" class="hint"> (0–{{ scoreMax }})</span></label>
@@ -81,7 +88,7 @@ function onKeydown(e) {
 
       <footer class="modal-foot">
         <button type="button" class="btn" @click="close">Cancel</button>
-        <button type="submit" class="btn pri">Save review</button>
+        <button type="submit" class="btn pri" :disabled="saving">{{ saving ? 'Saving…' : 'Save review' }}</button>
       </footer>
     </form>
   </div>

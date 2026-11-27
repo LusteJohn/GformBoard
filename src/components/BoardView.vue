@@ -39,25 +39,28 @@ const hasScore = r => r.answers.score !== undefined && r.answers.score !== ''
     </template>
   </div>
 
-  <div v-else class="board" :class="{ locked: !byStatus }">
-    <div v-for="c in columns" :key="c.name" class="col" :class="{ ov: overCol === c.name }"
-         @dragover.prevent="byStatus && (overCol = c.name)" @dragleave="overCol = null" @drop.prevent="drop(c.name)">
-      <h3><span>{{ c.name }}</span><span class="mu">{{ c.items.length }}</span></h3>
-      <div v-for="r in c.items" :key="r.id" class="card" :class="{ on: isSelected(r.id) }" :draggable="byStatus"
-           role="button" tabindex="0" :aria-label="`Open response: ${r.answers[form.layout.title]}`"
-           @dragstart="dragId = r.id" @dragend="dragId = overCol = null"
-           @click="state.openId = r.id" @keydown.enter.prevent="state.openId = r.id" @keydown.space.prevent="state.openId = r.id">
-        <div class="card-top">
-          <input type="checkbox" class="sel" :checked="isSelected(r.id)" @click.stop="toggleSelect(r.id)" />
-          <b>{{ r.answers[form.layout.title] }}</b>
-          <span class="sp"></span>
-          <span v-if="r.notes" class="badge note" title="Has feedback notes"><AppIcon name="note" :size="12" /> Note</span>
-          <span v-if="hasScore(r)" class="badge score" title="Score"><AppIcon name="star" :size="12" /> {{ r.answers.score }}</span>
+  <div v-else class="board-wrap" :class="{ scrollable: columns.length > 3 }">
+    <span v-if="columns.length > 3" class="scroll-hint">Scroll →</span>
+    <div class="board" :class="{ locked: !byStatus }">
+      <div v-for="c in columns" :key="c.name" class="col" :class="{ ov: overCol === c.name }"
+           @dragover.prevent="byStatus && (overCol = c.name)" @dragleave="overCol = null" @drop.prevent="drop(c.name)">
+        <h3><span>{{ c.name }}</span><span class="mu">{{ c.items.length }}</span></h3>
+        <div v-for="r in c.items" :key="r.id" class="card" :class="{ on: isSelected(r.id) }" :draggable="byStatus"
+             role="button" tabindex="0" :aria-label="`Open response: ${r.answers[form.layout.title]}`"
+             @dragstart="dragId = r.id" @dragend="dragId = overCol = null"
+             @click="state.openId = r.id" @keydown.enter.prevent="state.openId = r.id" @keydown.space.prevent="state.openId = r.id">
+          <div class="card-top">
+            <input type="checkbox" class="sel" :checked="isSelected(r.id)" @click.stop="toggleSelect(r.id)" />
+            <b>{{ r.answers[form.layout.title] }}</b>
+            <span class="sp"></span>
+            <span v-if="r.notes" class="badge note" title="Has feedback notes"><AppIcon name="note" :size="12" /> Note</span>
+            <span v-if="hasScore(r)" class="badge score" title="Score"><AppIcon name="star" :size="12" /> {{ r.answers.score }}</span>
+          </div>
+          <div v-for="k in form.layout.show" :key="k" class="kv">{{ label(form, k) }}: <span>{{ r.answers[k] }}</span></div>
+          <span v-if="!byStatus" class="tag" :class="statusClass(r.status)">{{ r.status }}</span>
         </div>
-        <div v-for="k in form.layout.show" :key="k" class="kv">{{ label(form, k) }}: <span>{{ r.answers[k] }}</span></div>
-        <span v-if="!byStatus" class="tag" :class="statusClass(r.status)">{{ r.status }}</span>
+        <div v-if="!c.items.length" class="col-empty">{{ byStatus ? 'Drop cards here' : 'No responses' }}</div>
       </div>
-      <div v-if="!c.items.length" class="col-empty">{{ byStatus ? 'Drop cards here' : 'No responses' }}</div>
     </div>
   </div>
 </template>

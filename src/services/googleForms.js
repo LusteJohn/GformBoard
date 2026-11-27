@@ -72,6 +72,7 @@ export function toAppForm(saved = {}, form, responses = []) {
     type: saved.type ?? (isQuiz(form) ? 'quiz' : 'other'),
     link: saved.link ?? (saved.id ? formLink(saved.id) : ''),
     modified: saved.lastSyncedAt?.toDate?.().toLocaleString?.() ?? '',
+    modifiedAt: saved.lastSyncedAt?.toDate?.().getTime?.() ?? 0,
     fields,
     layout: { title, group, show },
     responses: appResponses,

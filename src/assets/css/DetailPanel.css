@@ -10,5 +10,9 @@
 .modal-body label{display:block;font-weight:600;font-size:13px;margin:14px 0 5px}
 .modal-body label .ico{color:var(--mu);margin-right:5px}
 .hint{color:var(--mu);font-weight:400}
+.status-pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{border:1px solid transparent;border-radius:99px;padding:6px 12px;font-weight:600;font-size:13px;cursor:pointer;opacity:.55}
+.pill:hover{opacity:.85}
+.pill.on{opacity:1;box-shadow:0 0 0 2px var(--ac)}
 .modal-body select,.modal-body input[type=number],.modal-body textarea{width:100%;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg)}
 .modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:14px 18px;border-top:1px solid var(--bd);background:var(--sf)}
