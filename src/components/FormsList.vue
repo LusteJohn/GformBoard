@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch, onUnmounted } from 'vue'
 import { state, openForm, openAddForm, refreshForms } from '../store'
 import AppIcon from './AppIcon.vue'
 // Derive chips from the actual form types so nothing (e.g. "Other") is hidden.
@@ -16,7 +16,15 @@ const reviewedPct = f => {
   return Math.round(f.responses.filter(r => r.status !== 'To review').length / t * 100)
 }
 const hasAny = computed(() => Object.keys(state.forms).length > 0)
+const totalCount = computed(() => Object.keys(state.forms).length)
 function clearFilters() { state.search = ''; state.typeFilter = 'All' }
+
+// Debounced search input + clear button.
+const q = ref(state.search)
+let searchTimer
+watch(q, v => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { state.search = v }, 200) })
+onUnmounted(() => clearTimeout(searchTimer))
+function clearSearch() { q.value = ''; state.search = ''; state.typeFilter = 'All' }
 </script>
 <template>
   <main class="wrap">
@@ -33,8 +41,12 @@ function clearFilters() { state.search = ''; state.typeFilter = 'All' }
       </div>
     </div>
     <div class="bar">
-      <input id="form-search" v-model="state.search" placeholder="Search forms ( / )" />
+      <div class="search">
+        <input id="form-search" v-model="q" placeholder="Search forms ( / )" />
+        <button v-if="q" class="clear" @click="clearSearch" aria-label="Clear search">×</button>
+      </div>
       <button v-for="t in types" :key="t" class="chip" :class="{ on: state.typeFilter === t }" @click="state.typeFilter = t">{{ t }}</button>
+      <span class="count">{{ list.length }} of {{ totalCount }} forms</span>
     </div>
     <div class="grid">
       <button v-for="[id, f] in list" :key="id" class="fc" @click="openForm(id)">

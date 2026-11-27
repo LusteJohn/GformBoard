@@ -1,5 +1,9 @@
 .head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
 .actions{display:flex;gap:8px}
+.search{position:relative;flex:1;min-width:180px}
+.search input{width:100%;padding:9px 34px 9px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--sf)}
+.search .clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--mu);font-size:16px;line-height:1;cursor:pointer;padding:2px 4px}
+.count{color:var(--mu);font-size:13px;align-self:center;white-space:nowrap}
 .fc-head{display:flex;align-items:center;gap:8px}
 .fc-head .ico{color:var(--ac)}
 .prog{height:6px;background:var(--acs);border-radius:99px;overflow:hidden}

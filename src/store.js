@@ -205,6 +205,17 @@ export function goToForms() {
   state.openId = null
 }
 
+/**
+ * Clears locally-persisted prototype changes (layout + review deltas) and
+ * reloads forms from the source of truth, giving reviewers a clean slate.
+ */
+export function resetDemoData() {
+  try { localStorage.removeItem('formboard_local_v1') } catch { /* ignore */ }
+  state.forms = {}
+  state.selected = []
+  refreshForms()
+}
+
 // ---- Google Forms loading ----
 const isExpiredToken = e => /401|invalid_token|expired|invalid credentials/i.test(e?.message || '')
 

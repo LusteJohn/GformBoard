@@ -16,3 +16,6 @@
 .col{scroll-snap-align:start}
 .board-wrap.scrollable::after{content:"";position:absolute;top:0;right:0;bottom:10px;width:46px;background:linear-gradient(to right,transparent,var(--bg));pointer-events:none;border-radius:0 12px 12px 0}
 .scroll-hint{position:absolute;right:10px;top:-20px;font-size:12px;font-weight:600;color:var(--mu)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 10px;font-size:12px;color:var(--mu)}
+.lg{display:inline-flex;align-items:center;gap:6px}
+.lg i{width:10px;height:10px;border-radius:3px;display:inline-block}
