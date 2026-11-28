@@ -1,9 +1,21 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, nextTick } from 'vue'
-import { form, state, toast, statusClass } from '../store'
+import { form, state, toast, statusClass, isEmptyVal } from '../store'
 import { STATUSES } from '../data'
 import AppIcon from './AppIcon.vue'
 const r = computed(() => form.value.responses.find(x => x.id === state.openId))
+const hasKey = computed(() => Boolean(form.value.hasAnswerKey))
+const totalKeyed = computed(() => form.value.totalKeyed || 0)
+const correctCount = computed(() => r.value?.correctCount || 0)
+
+// Per-question correctness for this response (only keyed questions).
+const norm = v => String(v ?? '').trim().toLowerCase()
+function isCorrectKey(qid, val) {
+  const meta = form.value.answerKey?.[qid]
+  if (!meta || isEmptyVal(val)) return null
+  return meta.correct.some(c => norm(c) === norm(val))
+}
+const keyedFields = computed(() => (form.value.answerKey ? Object.keys(form.value.answerKey) : []))
 const scoreField = computed(() => form.value.fields.find(f => f[0] === 'score'))
 const hasScore = computed(() => Boolean(scoreField.value))
 const scoreLabel = computed(() => scoreField.value?.[1] || 'Score')
@@ -70,7 +82,19 @@ function onKeydown(e) {
       </header>
 
       <div class="modal-body">
-        <div v-for="[k, t] in form.fields" :key="k" class="ans"><small>{{ t }}</small>{{ r.answers[k] }}</div>
+        <div v-if="hasKey" class="score-summary" :class="{ ok: correctCount === totalKeyed && totalKeyed }">
+          <AppIcon :name="correctCount === totalKeyed && totalKeyed ? 'check' : 'star'" :size="16" />
+          <b>{{ correctCount }}/{{ totalKeyed }} correct</b>
+        </div>
+
+        <div v-for="[k, t] in form.fields" :key="k" class="ans">
+          <small>{{ t }}</small>
+          <span class="ans-val">{{ r.answers[k] }}</span>
+          <span v-if="keyedFields.includes(k)" class="mark" :class="isCorrectKey(k, r.answers[k]) ? 'ok' : 'bad'">
+            <AppIcon :name="isCorrectKey(k, r.answers[k]) ? 'check' : 'close'" :size="13" />
+            {{ isCorrectKey(k, r.answers[k]) ? 'Correct' : 'Wrong' }}
+          </span>
+        </div>
 
         <label><AppIcon name="check" :size="14" /> Status</label>
         <div class="status-pills">

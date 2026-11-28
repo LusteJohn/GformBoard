@@ -27,26 +27,36 @@ export async function fetchResponses(id, token) {
 }
 export const isQuiz = form => Boolean(form?.settings?.quizSettings?.isQuiz)
 export const questionsOf = form => (form?.items ?? [])
-  .filter(i => i.questionItem).map(i => ({ id: i.questionItem.question.questionId, title: i.title }))
+  .filter(i => i.questionItem).map(i => ({
+    id: i.questionItem.question.questionId,
+    title: i.title,
+    grading: i.questionItem.question.grading,
+    question: i.questionItem.question
+  }))
 
 /** Question ids that have a configured answer key (used for quiz scoring). */
 export function answerKeyIds(form) {
-  return questionsOf(form)
-    .filter(q => q.hasAnswerKey)
-    .map(q => q.id)
+  return questionsOf(form).filter(q => correctList(q)).map(q => q.id)
 }
 
 /** Normalises a value for comparison (case/space-insensitive). */
 const norm = v => String(v ?? '').trim().toLowerCase()
 
+/** Flattens a correct-answer entry (string or {value}) to its text. */
+function entryVal(a) {
+  if (a == null) return ''
+  if (typeof a === 'object') return a.value ?? ''
+  return String(a)
+}
+
 /** Correct answer values for a question, or null when no key is set. */
 function correctList(q) {
   const g = q?.grading
-  if (!g) return null
+  if (!g || g.correctAnswers == null) return null
   const lists = [
-    ...(g.correctAnswers?.answers ?? []).map(a => a.value),
-    ...(g.pointValues?.correctAnswers?.answers ?? []).map(a => a.value)
-  ].filter(v => v != null)
+    ...(g.correctAnswers?.answers ?? []).map(entryVal),
+    ...(g.pointValues?.correctAnswers?.answers ?? []).map(entryVal)
+  ].filter(v => v != null && v !== '')
   return lists.length ? lists : null
 }
 
@@ -90,13 +100,16 @@ export function toAppForm(saved = {}, form, responses = []) {
     .filter(k => k !== title && !hidden.includes(k))
   const group = savedLayout.groupBy ?? 'status'
 
-  // Quiz answer key: questionId -> { title, correct:[values], question } for keyed questions.
+  // Quiz answer key: questionId -> { title, correct:[values] } for keyed questions.
   const key = {}
   for (const q of questionsOf(form)) {
     const correct = correctList(q)
-    if (correct) key[q.id] = { title: q.title, correct, question: q }
+    if (correct) key[q.id] = { title: q.title, correct }
   }
   const hasAnswerKey = Object.keys(key).length > 0
+  if (import.meta.env.DEV) {
+    console.debug('[FormBoard] answer key:', hasAnswerKey ? key : 'none (no grading.correctAnswers on any question)')
+  }
 
   const appResponses = responses.map(r => {
     const answers = {}
@@ -104,7 +117,7 @@ export function toAppForm(saved = {}, form, responses = []) {
     for (const [qid, a] of Object.entries(r.answers ?? {})) {
       const val = answerValue(a)
       answers[qid] = val
-      if (key[qid] && isCorrect(key[qid].question, val)) correctCount++
+      if (key[qid] && isCorrect({ grading: { correctAnswers: { answers: key[qid].correct.map(v => ({ value: v })) } } }, val)) correctCount++
     }
     return { id: r.responseId, answers, status: 'To review', notes: '', correctCount }
   })
