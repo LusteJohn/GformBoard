@@ -29,6 +29,36 @@ export const isQuiz = form => Boolean(form?.settings?.quizSettings?.isQuiz)
 export const questionsOf = form => (form?.items ?? [])
   .filter(i => i.questionItem).map(i => ({ id: i.questionItem.question.questionId, title: i.title }))
 
+/** Question ids that have a configured answer key (used for quiz scoring). */
+export function answerKeyIds(form) {
+  return questionsOf(form)
+    .filter(q => q.hasAnswerKey)
+    .map(q => q.id)
+}
+
+/** Normalises a value for comparison (case/space-insensitive). */
+const norm = v => String(v ?? '').trim().toLowerCase()
+
+/** Correct answer values for a question, or null when no key is set. */
+function correctList(q) {
+  const g = q?.grading
+  if (!g) return null
+  const lists = [
+    ...(g.correctAnswers?.answers ?? []).map(a => a.value),
+    ...(g.pointValues?.correctAnswers?.answers ?? []).map(a => a.value)
+  ].filter(v => v != null)
+  return lists.length ? lists : null
+}
+
+/** Whether a student's answer matches the question's answer key. */
+export function isCorrect(q, answer) {
+  const correct = correctList(q)
+  if (!correct) return null
+  const given = norm(answer)
+  if (given === '') return false
+  return correct.some(c => norm(c) === given)
+}
+
 /** Sensible starting layout: first question is the card title, next three show on cards. */
 export function defaultLayout(questions) {
   return {
@@ -60,10 +90,23 @@ export function toAppForm(saved = {}, form, responses = []) {
     .filter(k => k !== title && !hidden.includes(k))
   const group = savedLayout.groupBy ?? 'status'
 
+  // Quiz answer key: questionId -> { title, correct:[values], question } for keyed questions.
+  const key = {}
+  for (const q of questionsOf(form)) {
+    const correct = correctList(q)
+    if (correct) key[q.id] = { title: q.title, correct, question: q }
+  }
+  const hasAnswerKey = Object.keys(key).length > 0
+
   const appResponses = responses.map(r => {
     const answers = {}
-    for (const [qid, a] of Object.entries(r.answers ?? {})) answers[qid] = answerValue(a)
-    return { id: r.responseId, answers, status: 'To review', notes: '' }
+    let correctCount = 0
+    for (const [qid, a] of Object.entries(r.answers ?? {})) {
+      const val = answerValue(a)
+      answers[qid] = val
+      if (key[qid] && isCorrect(key[qid].question, val)) correctCount++
+    }
+    return { id: r.responseId, answers, status: 'To review', notes: '', correctCount }
   })
 
   return {
@@ -76,5 +119,8 @@ export function toAppForm(saved = {}, form, responses = []) {
     fields,
     layout: { title, group, show },
     responses: appResponses,
+    hasAnswerKey,
+    answerKey: key,
+    totalKeyed: Object.keys(key).length,
   }
 }

@@ -27,6 +27,15 @@ export const form = computed(() => state.forms[state.formId])
 export const label = (f, key) => f.fields.find(x => x[0] === key)?.[1] ?? key
 export const statusClass = s => 's' + STATUSES.indexOf(s)
 
+// ---- response value formatting (shared by Board + Table) ----
+const URL_RE = /^https?:\/\/\S+$/i
+export const isUrl = v => URL_RE.test(String(v ?? '').trim())
+export const isEmptyVal = v => v == null || String(v).trim() === ''
+/** Display string with empty values shown as an em dash. */
+export const displayVal = v => (isEmptyVal(v) ? '—' : String(v))
+/** True when a value is long enough to clamp in cards/table cells. */
+export const isLongVal = v => String(v ?? '').length > 60 || String(v ?? '').includes('\n')
+
 // ---- appearance (light / dark / system) ----
 const THEME_KEY = 'formboard_theme'
 function applyTheme() {
