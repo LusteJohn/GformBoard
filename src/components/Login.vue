@@ -7,6 +7,7 @@ import logoUrl from '../assets/images/gformboard-icon.svg'
 
 const email = ref('')
 const password = ref('')
+const showPassword = ref(false)
 const error = ref('')
 const busy = ref(false)
 
@@ -68,7 +69,12 @@ async function google() {
         </label>
         <label class="field">
           <span><AppIcon name="lock" :size="14" /> Password</span>
-          <input v-model="password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+          <div class="pw">
+            <input v-model="password" :type="showPassword ? 'text' : 'password'" placeholder="••••••••" autocomplete="current-password" required />
+            <button type="button" class="pw-toggle" :aria-label="showPassword ? 'Hide password' : 'Show password'" @click="showPassword = !showPassword">
+              <AppIcon :name="showPassword ? 'eye-off' : 'eye'" :size="18" />
+            </button>
+          </div>
         </label>
         <button class="btn pri submit" type="submit" :disabled="busy">
           {{ busy ? 'Signing in…' : 'Sign in' }}

@@ -1,6 +1,9 @@
 .boot{min-height:100vh;display:grid;place-items:center;color:var(--mu)}
 .brand{display:inline-flex;align-items:center;gap:8px}
 .brand-ico{width:26px;height:26px;border-radius:7px;display:block}
+.loading{display:inline-flex;align-items:center;gap:7px;color:var(--mu);font-size:13px;font-weight:600}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 .cnt{display:inline-block;margin-left:6px;background:var(--ac);color:var(--sf);border-radius:99px;font-size:11px;padding:0 6px;font-weight:700}
 .theme{padding:6px 10px}
 .toast-act{margin-left:10px;background:none;border:0;color:inherit;font-weight:700;text-decoration:underline;cursor:pointer}

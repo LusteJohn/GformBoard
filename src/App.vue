@@ -116,6 +116,9 @@ function resetDemo() {
       <span class="brand">
         <img src="/icon.svg" alt="" class="brand-ico" />
         <span class="logo">GFormBoard</span>
+      </span>
+      <span v-if="state.loadingForms" class="loading" role="status" aria-live="polite">
+        <AppIcon name="refresh" :size="16" class="spin" /> Loading forms…
       </span><span class="sp"></span>
       <template v-if="state.screen === 'form'">
         <button class="btn" @click="state.customizing = true"><AppIcon name="sliders" :size="16" /> Customize</button>
