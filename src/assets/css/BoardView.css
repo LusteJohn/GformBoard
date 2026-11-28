@@ -1,10 +1,17 @@
 .card.on{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac)}
 .card-top{display:flex;align-items:center;gap:8px}
 .card-top b{flex:1}
+.card-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kv{font-size:13px;color:var(--mu)}
+.kv .val{color:var(--tx)}
+.kv .val.empty{color:var(--mu);opacity:.7}
+.kv .val.link{color:var(--ac);text-decoration:underline;word-break:break-all}
+.kv.long .val{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
 .sel{cursor:pointer;flex:none}
 .badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px}
 .badge.note{background:var(--acs);color:var(--ac)}
 .badge.score{background:var(--c2);color:var(--t2)}
+.badge.ok{background:var(--c2);color:var(--t2)}
 .empty{text-align:center;padding:40px 0}
 .empty-title{font-weight:700;font-size:16px;margin:0 0 4px}
 .empty .btn{margin-top:12px}

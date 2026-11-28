@@ -2,7 +2,8 @@
 import { computed, ref } from 'vue'
 import {
   form, state, label, statusClass, moveResponse,
-  filteredResponses, toggleSelect, isSelected, hasFilters, resetFilters
+  filteredResponses, toggleSelect, isSelected, hasFilters, resetFilters,
+  isUrl, isEmptyVal, displayVal, isLongVal
 } from '../store'
 import { STATUSES } from '../data'
 import AppIcon from './AppIcon.vue'
@@ -19,7 +20,8 @@ function drop(col) {
   if (dragId.value && byStatus.value) moveResponse(dragId.value, col)
   dragId.value = overCol.value = null
 }
-const hasScore = r => r.answers.score !== undefined && r.answers.score !== ''
+const hasScore = r => !isEmptyVal(r.answers.score)
+const correctCount = r => r.correctCount || 0
 </script>
 <template>
   <div v-if="!byStatus" class="note">
@@ -54,12 +56,17 @@ const hasScore = r => r.answers.score !== undefined && r.answers.score !== ''
              @click="state.openId = r.id" @keydown.enter.prevent="state.openId = r.id" @keydown.space.prevent="state.openId = r.id">
           <div class="card-top">
             <input type="checkbox" class="sel" :checked="isSelected(r.id)" @click.stop="toggleSelect(r.id)" />
-            <b>{{ r.answers[form.layout.title] }}</b>
+            <b class="card-title">{{ displayVal(r.answers[form.layout.title]) }}</b>
             <span class="sp"></span>
+            <span v-if="form.hasAnswerKey && correctCount(r)" class="badge ok" title="Correct answers"><AppIcon name="check" :size="12" /> {{ correctCount(r) }}</span>
             <span v-if="r.notes" class="badge note" title="Has feedback notes"><AppIcon name="note" :size="12" /> Note</span>
             <span v-if="hasScore(r)" class="badge score" title="Score"><AppIcon name="star" :size="12" /> {{ r.answers.score }}</span>
           </div>
-          <div v-for="k in form.layout.show" :key="k" class="kv">{{ label(form, k) }}: <span>{{ r.answers[k] }}</span></div>
+          <div v-for="k in form.layout.show" :key="k" class="kv" :class="{ long: isLongVal(r.answers[k]) }">
+            {{ label(form, k) }}:
+            <a v-if="isUrl(r.answers[k])" class="val link" :href="r.answers[k]" target="_blank" rel="noopener">{{ r.answers[k] }}</a>
+            <span v-else class="val" :class="{ empty: isEmptyVal(r.answers[k]) }">{{ displayVal(r.answers[k]) }}</span>
+          </div>
           <span v-if="!byStatus" class="tag" :class="statusClass(r.status)">{{ r.status }}</span>
         </div>
         <div v-if="!c.items.length" class="col-empty">{{ byStatus ? 'Drop cards here' : 'No responses' }}</div>
