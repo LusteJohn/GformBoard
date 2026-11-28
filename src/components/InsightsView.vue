@@ -1,11 +1,27 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { form, label } from '../store'
 import { STATUSES } from '../data'
 import AppIcon from './AppIcon.vue'
 
-const rs = computed(() => form.value.responses)
+// ---- respondents filter (search + status) ----
+const search = ref('')
+const statusFilter = ref('All')
+
+const allResponses = computed(() => form.value.responses)
+const respondents = computed(() => {
+  const q = search.value.trim().toLowerCase()
+  return allResponses.value.filter(r => {
+    if (statusFilter.value !== 'All' && r.status !== statusFilter.value) return false
+    if (!q) return true
+    const hay = [r.answers[form.value.layout.title], ...Object.values(r.answers), r.notes].join(' ').toLowerCase()
+    return hay.includes(q)
+  })
+})
+
+const rs = computed(() => respondents.value)
 const total = computed(() => rs.value.length)
+const totalAll = computed(() => allResponses.value.length)
 const gradedCount = computed(() => rs.value.filter(r => r.status === 'Graded').length)
 const graded = computed(() => total.value ? Math.round(gradedCount.value / total.value * 100) : 0)
 
@@ -53,8 +69,23 @@ const groupBars = computed(() => groupKey.value
 // Guard against divide-by-zero when a form (or filtered view) has 0 responses.
 const w = c => (total.value ? Math.max(4, c / total.value * 100) * 0.55 : 0) + '%'
 const qw = c => (total.value ? Math.max(4, c / total.value * 100) * 0.55 : 0) + '%'
+
+function clearFilters() { search.value = ''; statusFilter.value = 'All' }
 </script>
 <template>
+  <div class="filters">
+    <div class="search">
+      <input v-model="search" placeholder="Search respondents ( / )" />
+      <button v-if="search" class="clear" aria-label="Clear search" @click="search = ''">×</button>
+    </div>
+    <select v-model="statusFilter">
+      <option value="All">All statuses</option>
+      <option v-for="s in STATUSES" :key="s">{{ s }}</option>
+    </select>
+    <button v-if="search || statusFilter !== 'All'" class="btn" @click="clearFilters">Clear</button>
+    <span class="count">{{ total }} of {{ totalAll }} respondents</span>
+  </div>
+
   <div class="stats">
     <div class="st"><div class="n">{{ total }}</div><div class="mu">Responses</div></div>
     <div class="st"><div class="n">{{ graded }}%</div><div class="mu">Graded</div></div>
@@ -88,6 +119,12 @@ const qw = c => (total.value ? Math.max(4, c / total.value * 100) * 0.55 : 0) + 
 </template>
 
 <style scoped>
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0 4px}
+.search{position:relative;flex:1;min-width:200px}
+.search input{width:100%;padding:9px 34px 9px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--sf)}
+.search .clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--mu);font-size:16px;line-height:1;cursor:pointer;padding:2px 4px}
+.filters select{padding:9px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--sf)}
+.count{color:var(--mu);font-size:13px;white-space:nowrap}
 .st b{display:inline-flex;align-items:center;gap:6px}
 .st b .ico{color:var(--ac)}
 </style>

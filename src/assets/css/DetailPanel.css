@@ -7,6 +7,12 @@
 .modal-body{padding:6px 18px 16px;overflow-y:auto}
 .modal-body .ans{padding:9px 0;border-bottom:1px solid var(--bd)}
 .modal-body .ans small{color:var(--mu);display:block}
+.ans-val{display:inline-block}
+.mark{display:inline-flex;align-items:center;gap:4px;margin-left:8px;font-size:12px;font-weight:700;border-radius:6px;padding:1px 7px}
+.mark.ok{background:var(--c2);color:var(--t2)}
+.mark.bad{background:var(--c3);color:var(--t3)}
+.score-summary{display:flex;align-items:center;gap:8px;margin:2px 0 8px;padding:9px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--bd);font-size:14px}
+.score-summary.ok{background:var(--c2);border-color:var(--c2);color:var(--t2)}
 .modal-body label{display:block;font-weight:600;font-size:13px;margin:14px 0 5px}
 .modal-body label .ico{color:var(--mu);margin-right:5px}
 .hint{color:var(--mu);font-weight:400}
